@@ -47,17 +47,17 @@ pré-entraîné. La description sera affichée à l'utilisateur dans l'interface
 **Cyril :** US 3 (5 points), US 4 (5 points)
 
 ### Liens Internes:
-[Excalidraw](https://excalidraw.com/#room=dc221f1a8d9507c1e77d,XtKv-aLhHVwFvLK4v--Q_Q) 
-[Story mapping sheets](https://docs.google.com/spreadsheets/d/1aZ3k_PSkeQrGVGQ7HDYPhYgNXTsV9dMSDWWDFndWSDg/edit?gid=0#gid=0)
-[Story mapping Miro](https://miro.com/app/board/uXjVGbXlrEQ=/)
-[Logiciel Gestion Taiga](https://tree.taiga.io/project/cyril07-projet-1-detection-en-temps-reel-avec-webcam-et-image-to-text/backlog)
-[docs](https://docs.google.com/document/d/1z-2EQtrSnGrUCZtEnxD7ydTiCBjTCLG9PlurV5bL-g8/edit?tab=t.0)
+* [Excalidraw](https://excalidraw.com/#room=dc221f1a8d9507c1e77d,XtKv-aLhHVwFvLK4v--Q_Q) 
+* [Story mapping sheets](https://docs.google.com/spreadsheets/d/1aZ3k_PSkeQrGVGQ7HDYPhYgNXTsV9dMSDWWDFndWSDg/edit?gid=0#gid=0)
+* [Story mapping Miro](https://miro.com/app/board/uXjVGbXlrEQ=/)
+* [Logiciel Gestion Taiga](https://tree.taiga.io/project/cyril07-projet-1-detection-en-temps-reel-avec-webcam-et-image-to-text/backlog)
+* [docs](https://docs.google.com/document/d/1z-2EQtrSnGrUCZtEnxD7ydTiCBjTCLG9PlurV5bL-g8/edit?tab=t.0)
 
 ### Sources:
 
-[OpenCV Capture Video from Camera](https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html)
-[modèle de détection d'objets](https://huggingface.co/facebook/detr-resnet-50)
-[modèle de détection d'objets YOLO](https://docs.ultralytics.com/fr/modes/predict/#why-use-ultralytics-yolo-for-inference)
-[liste modeles open cv](https://huggingface.co/opencv)
-[modèle "image to text"](https://huggingface.co/nlpconnect/vit-gpt2-image-captioning)
-[modele “image to text2”](https://huggingface.co/Salesforce/blip-image-captioning-large)
+* [OpenCV Capture Video from Camera](https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html)
+* [modèle de détection d'objets](https://huggingface.co/facebook/detr-resnet-50)
+* [modèle de détection d'objets YOLO](https://docs.ultralytics.com/fr/modes/predict/#why-use-ultralytics-yolo-for-inference)
+* [liste modeles open cv](https://huggingface.co/opencv)
+* [modèle "image to text"](https://huggingface.co/nlpconnect/vit-gpt2-image-captioning)
+* [modele “image to text2”](https://huggingface.co/Salesforce/blip-image-captioning-large)
