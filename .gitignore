@@ -10,6 +10,9 @@ __pycache__/
 # C extensions
 *.so
 
+API_description/cache/
+*.ipynb_checkpoints/
+
 # Distribution / packaging
 .Python
 build/
