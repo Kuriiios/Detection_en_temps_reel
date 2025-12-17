@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 HASH_STATIC_SALT = os.getenv("HASH_STATIC_SALT").encode()
+if not HASH_STATIC_SALT:
+    raise ValueError("No HASH_STATIC_SALT found in environment variables!")
+
 
 class Base(DeclarativeBase):
      pass

@@ -7,6 +7,8 @@ import os
 load_dotenv()
 
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+if not ENCRYPTION_KEY:
+    raise ValueError("No ENCRYPTION_KEY found in environment variables!")
 CIPHER = Fernet(ENCRYPTION_KEY)
 
 class EncryptedString(TypeDecorator):
