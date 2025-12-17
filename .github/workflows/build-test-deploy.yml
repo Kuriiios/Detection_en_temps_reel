@@ -2,13 +2,18 @@ name: Build, Test, and Deploy
 
 on:
   push:
-    branches: [ "main", "dev", "organisation_bdd" ]
+    branches: [ "**" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+        ENCRYPTION_KEY: "I6XWGKxqoi1qR-U6ugTjav7Jf6T0sMr5o_rEPKAW9Lo="
+        HASH_STATIC_SALT: "Detection-en-temps-reel-avec-webcam-et-image-to-text"
+        PYTHONPATH: .
 
     steps:
     - name: Checkout code
@@ -27,9 +32,5 @@ jobs:
         pip install pytest pytest-faker cryptography bcrypt python-dotenv sqlalchemy
 
     - name: Run tests
-      env:
-        ENCRYPTION_KEY: "I6XWGKxqoi1qR-U6ugTjav7Jf6T0sMr5o_rEPKAW9Lo="
-        HASH_STATIC_SALT: "Detection-en-temps-reel-avec-webcam-et-image-to-text"
-        PYTHONPATH: .
       run: |
         pytest database/tests/
