@@ -2,14 +2,14 @@ name: Build, Test, and Deploy
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main", "dev", "organisation_bdd" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
