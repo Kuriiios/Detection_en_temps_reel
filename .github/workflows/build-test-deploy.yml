@@ -26,11 +26,10 @@ jobs:
         # Ensure pytest and its plugins are installed
         pip install pytest pytest-faker cryptography bcrypt python-dotenv sqlalchemy
 
-    - name: Run Tests with Pytest
-      env:
-        # Inject the GitHub Secrets into the environment for the tests
-        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-        HASH_STATIC_SALT: ${{ secrets.HASH_STATIC_SALT }}
+    - name: Create .env file
       run: |
+        echo "ENCRYPTION_KEY=I6XWGKxqoi1qR-U6ugTjav7Jf6T0sMr5o_rEPKAW9Lo=" > .env
+        echo "HASH_STATIC_SALT=Detection-en-temps-reel-avec-webcam-et-image-to-text" > .env
+
         # Run from root to ensure absolute imports work
         pytest database/tests/
