@@ -26,10 +26,10 @@ jobs:
         # Ensure pytest and its plugins are installed
         pip install pytest pytest-faker cryptography bcrypt python-dotenv sqlalchemy
 
-    - name: Create .env file
+    - name: Run tests
+      env:
+        ENCRYPTION_KEY: "I6XWGKxqoi1qR-U6ugTjav7Jf6T0sMr5o_rEPKAW9Lo="
+        HASH_STATIC_SALT: "Detection-en-temps-reel-avec-webcam-et-image-to-text"
+        PYTHONPATH: .
       run: |
-        echo "ENCRYPTION_KEY=I6XWGKxqoi1qR-U6ugTjav7Jf6T0sMr5o_rEPKAW9Lo=" > .env
-        echo "HASH_STATIC_SALT=Detection-en-temps-reel-avec-webcam-et-image-to-text" > .env
-
-        # Run from root to ensure absolute imports work
         pytest database/tests/
