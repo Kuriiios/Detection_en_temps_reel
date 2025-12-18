@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 import io
 from PIL import Image
 from pydantic import BaseModel
-from typing import Union
+.from typing import Union
 
 import numpy as np
 from threading import Thread
