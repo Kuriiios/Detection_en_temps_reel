@@ -24,25 +24,11 @@ jobs:
       with:
         python-version: "3.11.14"
 
-    - name: Install BCC System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          bpfcc-tools \
-          libbpfcc-dev \
-          linux-headers-$(uname -r) \
-          python3-bpfcc
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y bpfcc-tools libbpfcc-dev linux-headers-$(uname -r)
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
 
-        pip install -r requirements.txt
+        pip install -r requirements.pip.txt
 
         pip install pytest pytest-faker cryptography bcrypt python-dotenv sqlalchemy
 

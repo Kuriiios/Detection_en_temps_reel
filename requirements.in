@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+numpy
+pandas
+torch
+torchvision
+transformers
+streamlit
+sqlalchemy
+python-dotenv
+pytest
+bcrypt
+cryptography
