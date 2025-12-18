@@ -53,7 +53,7 @@ except:
 
 
 # --- endpoints ---
-@app.post("/api/image/description", response_model=Union[ImageDescriptionResponse, dict])
+@app.post("/process_image", response_model=Union[ImageDescriptionResponse, dict])
 async def describe_image(file: UploadFile = File(...)):
 
     global processor, model 
@@ -84,7 +84,7 @@ async def describe_image(file: UploadFile = File(...)):
         inputs = processor(images=img, return_tensors="pt")
         out = model.generate(**inputs)
         caption = processor.decode(out[0], skip_special_tokens=True)
-        logger.info(f"Decsription is generated")
+        logger.info(f"Description is generated")
     except Exception as e:
         logger.error(f"Cannot generate text description: {str(e)}")
         raise HTTPException(status_code=400, detail={"status": "400", "message": f"Cannot generate text description: {str(e)}"})
@@ -94,7 +94,7 @@ async def describe_image(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     try:
-        port = os.getenv('API_DETECTION_PORT', '8001')
+        port = os.getenv('API_DESCRIPTION_PORT', '8001')
         port = int(port)
         url = os.getenv('API_BASE_URL', '127.0.0.1')
     except ValueError:

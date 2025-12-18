@@ -13,19 +13,19 @@ logger.add(sink=os.getenv("LOG_PATH") + '_' +file[0] + ".log", rotation="500 MB"
 app = FastAPI()
 
 @app.post("/process_image")
-async def process_image(img: UploadFile = File(...)):
+async def process_image(file: UploadFile = File(...)):
     logger.success("Détection reçue")
-    content = await img.read()
+    content = await file.read()
     return {
         "message": "Détection reçue",
-        "filename": img.filename,
+        "filename": file.filename,
         "size": len(content),
         "detections": ["objet1", "objet2"]
     }
 
 if __name__ == "__main__":
     try:
-        port = os.getenv('API_DESCRIPTION_PORT', '8002')
+        port = os.getenv('API_DETECTION_PORT', '8002')
         port = int(port)
         url = os.getenv('API_BASE_URL', '127.0.0.1')
     except ValueError:

@@ -46,7 +46,7 @@ if uploaded_file is not None:
             # BOUTON D'ENVOI
             if st.button("Envoyer l'image"):
                 files = {
-                    "img": (
+                    "file": (
                         uploaded_file.name,
                         image_bytes,
                         uploaded_file.type
@@ -56,16 +56,17 @@ if uploaded_file is not None:
                 response = requests.post(
                     API_INTERMEDIAIRE_URL,
                     files=files,
-                    timeout=5
+                    timeout=15
                 )
-
+                data = response.json()
                 if response.status_code == 200:
                     st.success("Image envoyée")
+                    st.info(data['description_result']['message'])
                 else:
                     st.error(
                         f"Erreur lors de l'envoi de l'image (status {response.status_code})"
                     )
-
+            
     except Exception:
         st.error("Impossible de lire le fichier")
 
