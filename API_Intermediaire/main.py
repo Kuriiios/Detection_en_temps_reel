@@ -1,20 +1,38 @@
-#API_Intermediaire/main.py
-
+from API_Intermediaire.modules.db_tools import add_new_user
+import uvicorn
+from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from dotenv import load_dotenv
+import requests
 import os
+import json
 import httpx
-
 load_dotenv()
 
-API_DESCRIPTION_URL = os.getenv("API_DESCRIPTION_URL")
-API_DETECTION_URL = os.getenv("API_DETECTION_URL")
+API_DESCRIPTION_URL = os.getenv("API_DESCRIPTION_URL") + "/process_image"
+API_DETECTION_URL = os.getenv("API_DETECTION_URL") + "/process_image"
 
-app = FastAPI()
+app = FastAPI(title="API")
 
-@app.get("/")
-def read_root():
-    return {"message": "API is running"}
+class InsertResponse(BaseModel):
+    response : bool
+
+class UserRequest(BaseModel):
+    firstname : str
+    lastname : str
+    username : str
+    email : str
+    password : str
+    city : str
+
+@app.get('/')
+def landing_page():
+    return {'Placeholder': 'Welcome'}
+
+@app.post("/create-user/", response_model = InsertResponse)
+def create_user(user : UserRequest):
+    response = add_new_user(user)
+    return response
 
 
 @app.post("/api/image/process")
@@ -53,3 +71,21 @@ async def process_image(img: UploadFile = File(...)):
         "description_result": desc_result,
         "detection_result": det_result
     }
+
+
+if __name__ == "__main__":
+    try:
+        port = os.getenv('API_INTERMEDIAIRE_PORT', '8000')
+        port = int(port)
+        url = os.getenv('API_BASE_URL', '127.0.0.1')
+    except ValueError:
+        print("ERREUR")
+        port = 8080
+
+    uvicorn.run(
+        "API_Intermediaire.main:app",
+        reload = False,
+        port = port,
+        host = url,
+        log_level="debug"
+    )

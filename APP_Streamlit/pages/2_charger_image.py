@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL")
+API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL") + "/api/image/process"
 
 # TITRE
 st.title("Charger une image et envoyer aux APIs")
