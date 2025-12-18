@@ -13,7 +13,7 @@ load_dotenv()
 API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL")
 
 # TITRE
-st.title("Charger une image et envoyer aux apis")
+st.title("Charger une image et envoyer aux APIs")
 
 # Vérification variable d'environnement
 if not API_INTERMEDIAIRE_URL:
