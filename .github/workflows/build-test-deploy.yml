@@ -24,6 +24,15 @@ jobs:
       with:
         python-version: "3.11"
 
+    - name: Install BCC System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          bpfcc-tools \
+          libbpfcc-dev \
+          linux-headers-$(uname -r) \
+          python3-bpfcc
+
     - name: Install system dependencies
       run: |
         sudo apt-get update
