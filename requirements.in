@@ -1,0 +1,14 @@
+# Reference sub-projects
+-r API_description/requirements.txt
+-r API_detection/requirements.txt
+-r API_Intermediaire/requirements.txt
+-r APP_Streamlit/requirements.txt
+-r database/requirements.txt
+
+# Global CI/Testing tools
+pytest
+pytest-faker
+cryptography
+bcrypt
+python-dotenv
+sqlalchemy
