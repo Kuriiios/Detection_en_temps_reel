@@ -1,4 +1,4 @@
-#APP_Streamlit/charger_image.py
+#APP_Streamlit/pages/1_charger_image.py
 
 import io
 import streamlit as st
@@ -28,6 +28,10 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
     try:
+        #Vérification du type
+        # if uploaded_file.type not in ["image/jpeg", "image/png", "image/jpg"]:
+        #     st.error("Format de fichier non supporté. Veuillez charger un JPG ou PNG.")
+        
         # Vérification taille > 0
         if uploaded_file.size <= 0:
             st.error("Fichier vide")
