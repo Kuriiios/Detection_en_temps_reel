@@ -12,3 +12,4 @@ pytest
 bcrypt
 cryptography
 httpx
+python-multipart
