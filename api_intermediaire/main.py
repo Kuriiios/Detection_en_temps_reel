@@ -81,7 +81,7 @@ if __name__ == "__main__":
         port = 8080
 
     uvicorn.run(
-        "API_Intermediaire.main:app",
+        "api_intermediaire.main:app",
         reload = False,
         port = port,
         host = url,
