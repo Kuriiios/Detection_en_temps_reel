@@ -6,14 +6,18 @@ from fastapi.responses import JSONResponse
 import io
 from PIL import Image
 from pydantic import BaseModel
-.from typing import Union
-
+from typing import Union
+import uvicorn
+from dotenv import load_dotenv
+import os
 import numpy as np
 from threading import Thread
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
 import logging
 from logging.handlers import RotatingFileHandler
+
+load_dotenv()
 
 # --- logging --- 
 logging.basicConfig(
@@ -37,12 +41,11 @@ class ImageDescriptionResponse(BaseModel):
 
 
 # --- global variables, try to load from cache----
-model_path = r"cache/blip"
 
 
 try:
-    processor = BlipProcessor.from_pretrained(model_path)
-    model = BlipForConditionalGeneration.from_pretrained(model_path)
+    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+    model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large")
 except:
     processor = None
     model = None
@@ -50,7 +53,7 @@ except:
 
 
 # --- endpoints ---
-@app.post("/api/image/description", response_model=Union[ImageDescriptionResponse, dict])
+@app.post("/process_image", response_model=Union[ImageDescriptionResponse, dict])
 async def describe_image(file: UploadFile = File(...)):
 
     global processor, model 
@@ -81,9 +84,27 @@ async def describe_image(file: UploadFile = File(...)):
         inputs = processor(images=img, return_tensors="pt")
         out = model.generate(**inputs)
         caption = processor.decode(out[0], skip_special_tokens=True)
-        logger.info(f"Decsription is generated")
+        logger.info(f"Description is generated")
     except Exception as e:
         logger.error(f"Cannot generate text description: {str(e)}")
         raise HTTPException(status_code=400, detail={"status": "400", "message": f"Cannot generate text description: {str(e)}"})
 
     return {"status": "success", "message": caption}
+
+
+if __name__ == "__main__":
+    try:
+        port = os.getenv('API_DESCRIPTION_PORT', '8001')
+        port = int(port)
+        url = os.getenv('API_BASE_URL', '127.0.0.1')
+    except ValueError:
+        print("ERREUR")
+        port = 8080
+
+    uvicorn.run(
+        "API_description.main:app",
+        reload = False,
+        port = port,
+        host = url,
+        log_level="debug"
+    )

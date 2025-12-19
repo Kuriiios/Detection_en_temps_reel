@@ -4,8 +4,8 @@ import io
 import pytest
 from PIL import Image
 from fastapi.testclient import TestClient
-from API_description.api_description import app
-from API_description import api_description
+from API_description.main import app
+from API_description import main
 
 # --- client ---
 client = TestClient(app)
@@ -31,8 +31,8 @@ def test_docs_available():
 # --- test model loading ---
 def test_model_not_loaded(monkeypatch):
 
-    monkeypatch.setattr(api_description, "processor", None)
-    monkeypatch.setattr(api_description, "model", None)
+    monkeypatch.setattr(main, "processor", None)
+    monkeypatch.setattr(main, "model", None)
 
     # --- fake image ---
     img = Image.new("RGB", (10, 10), color="red")
@@ -41,7 +41,7 @@ def test_model_not_loaded(monkeypatch):
     file.seek(0)
 
     response = client.post(
-        "/api/image/description",
+        "/process_image",
         files={"file": ("test.jpg", file, "image/jpeg")}
     )
 
@@ -51,7 +51,7 @@ def test_model_not_loaded(monkeypatch):
 def test_invalid_media_type():
     file = io.BytesIO(b"not an image")
     response = client.post(
-        "/api/image/description",
+        "/process_image",
         files={"file": ("test.txt", file, "text/plain")}
     )
 
@@ -61,8 +61,8 @@ def test_invalid_media_type():
 # --- test status and exsitsens message in case of success ---
 def test_success(monkeypatch):
 
-    monkeypatch.setattr(api_description, "processor", DummyProcessor())
-    monkeypatch.setattr(api_description, "model", DummyModel())
+    monkeypatch.setattr(main, "processor", DummyProcessor())
+    monkeypatch.setattr(main, "model", DummyModel())
 
     # --- fake image ---
     img = Image.new("RGB", (10, 10), color="red")
@@ -71,7 +71,7 @@ def test_success(monkeypatch):
     file.seek(0)
 
     response = client.post(
-        "/api/image/description",
+        "/process_image",
         files={"file": ("test.jpg", file, "image/jpeg")}
     )
 
