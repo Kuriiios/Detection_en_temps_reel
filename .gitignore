@@ -4,11 +4,17 @@
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
+cache/
 *.py[cod]
 *$py.class
 
 # C extensions
 *.so
+.venv*
+
+API_description/cache/
+API_detection/cache/
+*.ipynb_checkpoints/
 
 # Distribution / packaging
 .Python
@@ -350,3 +356,4 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+*.pt
