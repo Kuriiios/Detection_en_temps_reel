@@ -30,10 +30,86 @@ pré-entraîné. La description sera affichée à l'utilisateur dans l'interface
 - transformers
 - torch
 
+### How to run the app : 
+```
+    python -m API_detection.main
+    python -m API_description.main
+    python -m API_Intermediaire.main
+    streamlit run APP_Streamlit/app.py
+```
+
 ### Architecture Fichiers
 
 ``` 
-
+    ├── 🗂️ API_description
+    │   ├── 📄 __init__.py
+    │   ├── 🗂️ dev
+    │   │       └── 📄 dev_notebook.ipynb
+    │   ├── 🗂️ tests
+    │   │       ├── 📄 __init__.py
+    │   │       └── 📄 test_api_description.py
+    │   ├── 📄 requirements.txt
+    │   ├── 📄 main.py
+    │   └── 📄 setup_model.py
+    ├── 🗂️ API_detection
+    │   ├── 📄 __init__.py
+    │   ├── 🗂️ tests
+    │   │       ├── 📄 __init__.py
+    │   │       └── 📄 test_detection.py
+    │   ├── 📄 requirements.txt
+    │   └── 📄 main.py
+    ├── 🗂️ API_Intermediaire
+    │   ├── 📄 __init__.py
+    │   ├── 🗂️ dev
+    │   │       └── 📄 dev_notebook.ipynb
+    │   ├── 🗂️ modules
+    │   │       └── 📄 db_tools.py
+    │   ├── 🗂️ tests
+    │   │       ├── 📄 __init__.py
+    │   │       └── 📄 test_intermediaire.py
+    │   ├── 📄 requirements.txt
+    │   └── 📄 main.py
+    ├── 🗂️ APP_Streamlit
+    │   ├── 📄 __init__.py
+    │   ├── 🗂️ pages
+    │   │       ├── 📄 1_formulaire.py
+    │   │       └── 📄 2_charger_images.py
+    │   ├── 🗂️ modules
+    │   │       └── 📄 email_valide.py
+    │   ├── 🗂️ tests
+    │   │       ├── 📄 __init__.py
+    │   │       └── 📄 test_app_streamlit.py
+    │   ├── 📄 requirements.txt
+    │   └── 📄 app.py
+    ├── 🗂️ database
+    │   ├── 📄 __init__.py
+    │   ├── 🗂️ data
+    │   │       ├── 📄 db_init.py
+    │   │       └── 📄 models.py
+    │   ├── 🗂️ dev
+    │   │       └── 📄 dev.py
+    │   ├── 🗂️ modules
+    │   │       ├── 📄 __init__.py
+    │   │       └── 📄 encryption_db.py
+    │   ├── 🗂️ tests
+    │   │       ├── 📄 __init__.py
+    │   │       └── 📄 test_orm.py
+    │   ├── 📄 requirements.txt
+    │   ├── 📄 main.py
+    │   └── 📖 users.db
+    ├── 🗂️ logs
+    │   ├── 📄 log_main.log
+    │   └── 📄 log_test.log
+    ├── 🗂️ reference
+    ├── 🗂️ tests
+    │   └── 📄 test_setup.py
+    │   ├── 🗂️ assets
+    │       └── 📄 react.svg
+    ├── 📄 .gitignore
+    ├── 📄 pytest.ini
+    ├── 📄 README.md
+    ├── 📄 requirements.in
+    └── 📄 requirements.txt
 ```
 
 ### Methode Merise
