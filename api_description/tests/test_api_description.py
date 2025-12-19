@@ -1,11 +1,10 @@
 # DETECTION_en_temps_reel/API_description/tests/test_api_description.py
 
 import io
-import pytest
 from PIL import Image
 from fastapi.testclient import TestClient
-from API_description.main import app
-from API_description import main
+from api_description.main import app
+from api_description import main
 
 # --- client ---
 client = TestClient(app)

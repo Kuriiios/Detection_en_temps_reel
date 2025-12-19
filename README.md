@@ -32,16 +32,16 @@ pré-entraîné. La description sera affichée à l'utilisateur dans l'interface
 
 ### How to run the app : 
 ```
-    python -m API_detection.main
-    python -m API_description.main
-    python -m API_Intermediaire.main
-    streamlit run APP_Streamlit/app.py
+    python -m api_detection.main
+    python -m api_description.main
+    python -m api_intermediaire.main
+    streamlit run app_streamlit/app.py
 ```
 
 ### Architecture Fichiers
 
 ``` 
-    ├── 🗂️ API_description
+    ├── 🗂️ api_description
     │   ├── 📄 __init__.py
     │   ├── 🗂️ dev
     │   │       └── 📄 dev_notebook.ipynb
@@ -51,14 +51,14 @@ pré-entraîné. La description sera affichée à l'utilisateur dans l'interface
     │   ├── 📄 requirements.txt
     │   ├── 📄 main.py
     │   └── 📄 setup_model.py
-    ├── 🗂️ API_detection
+    ├── 🗂️ api_detection
     │   ├── 📄 __init__.py
     │   ├── 🗂️ tests
     │   │       ├── 📄 __init__.py
     │   │       └── 📄 test_detection.py
     │   ├── 📄 requirements.txt
     │   └── 📄 main.py
-    ├── 🗂️ API_Intermediaire
+    ├── 🗂️ api_intermediaire
     │   ├── 📄 __init__.py
     │   ├── 🗂️ dev
     │   │       └── 📄 dev_notebook.ipynb
@@ -69,7 +69,7 @@ pré-entraîné. La description sera affichée à l'utilisateur dans l'interface
     │   │       └── 📄 test_intermediaire.py
     │   ├── 📄 requirements.txt
     │   └── 📄 main.py
-    ├── 🗂️ APP_Streamlit
+    ├── 🗂️ app_streamlit
     │   ├── 📄 __init__.py
     │   ├── 🗂️ pages
     │   │       ├── 📄 1_formulaire.py

@@ -1,7 +1,5 @@
 #APP_Streamlit/pages/1_charger_image.py
-import cv2
 import base64
-import numpy as np
 import io
 import streamlit as st
 from PIL import Image

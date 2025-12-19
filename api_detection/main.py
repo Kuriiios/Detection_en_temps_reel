@@ -7,20 +7,16 @@ import uvicorn
 import base64
 import numpy as np
 from PIL import Image
-from pathlib import Path
 from dotenv import load_dotenv
 import os
 load_dotenv()
 
 from fastapi import FastAPI, UploadFile, File,  HTTPException
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Union
 
-from API_detection.model_loader import load_model # <---------------------- import loader
+from api_detection.model_loader import load_model # <---------------------- import loader
 
 import logging
-from logging.handlers import RotatingFileHandler
 
 # --- logging --- 
 logging.basicConfig(

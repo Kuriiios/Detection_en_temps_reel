@@ -2,7 +2,6 @@
 
 # --- import ---
 from fastapi import FastAPI, UploadFile, File,  HTTPException
-from fastapi.responses import JSONResponse
 import io
 from PIL import Image
 from pydantic import BaseModel
@@ -10,12 +9,8 @@ from typing import Union
 import uvicorn
 from dotenv import load_dotenv
 import os
-import numpy as np
-from threading import Thread
 from transformers import BlipProcessor, BlipForConditionalGeneration
-
 import logging
-from logging.handlers import RotatingFileHandler
 
 load_dotenv()
 

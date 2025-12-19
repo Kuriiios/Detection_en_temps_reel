@@ -1,11 +1,8 @@
 from sqlalchemy.orm import Session, sessionmaker
-from  database.data.models import User, City, Object
-from dotenv import load_dotenv
+from  database.data.models import User, City
 from database.data.db_init import ENGINE
 import datetime
 from loguru import logger
-import os
-load_dotenv()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 

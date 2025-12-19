@@ -1,11 +1,9 @@
-from API_Intermediaire.modules.db_tools import add_new_user
+from api_intermediaire.modules.db_tools import add_new_user
 import uvicorn
 from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from dotenv import load_dotenv
-import requests
 import os
-import json
 import httpx
 load_dotenv()
 
