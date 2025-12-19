@@ -18,7 +18,7 @@ class DummyProcessor:
     def decode(self, *args, **kwargs):
         return "a cat"
 
-class DummyModel:знеш
+class DummyModel:
     def generate(self, *args, **kwargs):
         return [[1, 2, 3]]
 

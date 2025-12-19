@@ -11,6 +11,7 @@ __pycache__/
 *.so
 
 API_description/cache/
+API_detection/cache/
 *.ipynb_checkpoints/
 
 # Distribution / packaging
