@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Union
 
-from model_loader import load_model # <---------------------- import loader
+from API_detection.model_loader import load_model # <---------------------- import loader
 
 import logging
 from logging.handlers import RotatingFileHandler
