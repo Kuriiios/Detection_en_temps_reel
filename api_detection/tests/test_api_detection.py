@@ -1,16 +1,18 @@
 # DETECTION_en_temps_reel/API_description/tests/test_api_description.py
 import io
+import cv2
+import pytest
 import numpy as np
+
 import base64
 from fastapi.testclient import TestClient
-from api_detection.main import app
-
+from API_detection.api_detection import app
+from API_detection.api_detection import model
 
 # --- client ---
 client = TestClient(app)
 
 # --- fake model ---
-
 class DummyYOLO:
     def __call__(self, img):
         class Result:
@@ -18,45 +20,63 @@ class DummyYOLO:
                 return np.zeros((100, 100, 3), dtype=np.uint8)
         return [Result()] 
 
+@pytest.fixture(autouse=True)
+def mock_model(monkeypatch):
+
+    monkeypatch.setattr("API_detection.api_detection.model", DummyYOLO())
+    yield
+
 # --- test api access ---
 def test_docs_available():
     response = client.get("/docs")
     assert response.status_code == 200
 
 def test_detect_no_file():
-    response = client.post("/process_image")
-    assert response.status_code == 422
+    response = client.post("/api/image/detection")
+    assert response.status_code == 422  
+
 
 # --- invalid file ---
 def test_detect_invalid_file():
     response = client.post(
-        "/process_image",
+        "/api/image/detection",
         files={"file": ("test.txt", b"not an image", "text/plain")}
     )
-
     assert response.status_code == 422
 
-
+# --- empty file ---
+def test_detect_empty_file():
+    empty_bytes = io.BytesIO(b"")
+    response = client.post(
+        "/api/image/detection",
+        files={"file": ("empty.jpg", empty_bytes, "image/jpeg")}
+    )
+    assert response.status_code == 400
 
 # --- test success ---
-from PIL import Image
 def test_detect_image_success():
-    # Create a fake image in memory
-    buf = io.BytesIO()
-    Image.new('RGB', (100, 100), color='red').save(buf, format='JPEG')
-    buf.seek(0)
+    # --- fake image ---
+    img_np = np.random.randint(0, 256, (50, 50, 3), dtype=np.uint8)
+
+
+    success, buffer = cv2.imencode(".jpg", img_np)
+    assert success
+    # --- creation une fiche pour envoier
+    img_bytes = io.BytesIO(buffer.tobytes())
 
     response = client.post(
-        "/process_image",
-        files={"file": ("test.jpg", buf, "image/jpeg")}
+        "/api/image/detection",
+        files={"file": ("fake.jpg", img_bytes, "image/jpeg")}
     )
 
     assert response.status_code == 200
+
     data = response.json()
+    assert "status" in data
     assert data["status"] == "success"
+
     assert "image_base64" in data
     assert isinstance(data["image_base64"], str)
 
-    # Проверяем, что это реально Base64
     decoded = base64.b64decode(data["image_base64"])
     assert len(decoded) > 0
