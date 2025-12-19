@@ -1,11 +1,9 @@
-from API_Intermediaire.modules.db_tools import add_new_user
+from api_intermediaire.modules.db_tools import add_new_user
 import uvicorn
 from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from dotenv import load_dotenv
-import requests
 import os
-import json
 import httpx
 load_dotenv()
 
@@ -36,17 +34,17 @@ def create_user(user : UserRequest):
 
 
 @app.post("/api/image/process")
-async def process_image(img: UploadFile = File(...)):
+async def process_image(file: UploadFile = File(...)):
     #ON VERIFIE LE TYPE
-    if img.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
+    if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
         raise HTTPException(status_code=400, detail="Format incorrect")
 
     #LECTURE DU FICHIER
-    content = await img.read()
+    content = await file.read()
     if len(content) <= 0:
         raise HTTPException(status_code=400, detail="Image vide")
     
-    files = {"img" : (img.filename, content, img.content_type)}
+    files = {"file" : (file.filename, content, file.content_type)}
 
     async with httpx.AsyncClient() as client:
         try:
@@ -67,7 +65,7 @@ async def process_image(img: UploadFile = File(...)):
         
     return {
         "message": "Image envoyée aux APIs",
-        "filename": img.filename,
+        "filename": file.filename,
         "description_result": desc_result,
         "detection_result": det_result
     }
