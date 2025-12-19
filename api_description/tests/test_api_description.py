@@ -1,4 +1,4 @@
-# DETECTION_en_temps_reel/API_description/tests/test_api_description.py
+# DETECTION_en_temps_reel/api_description/tests/test_api_description.py
 
 import io
 from PIL import Image

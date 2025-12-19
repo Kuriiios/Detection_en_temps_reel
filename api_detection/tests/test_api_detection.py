@@ -1,4 +1,4 @@
-# DETECTION_en_temps_reel/API_description/tests/test_api_description.py
+# DETECTION_en_temps_reel/api_description/tests/test_api_description.py
 import io
 import cv2
 import pytest
@@ -23,7 +23,7 @@ class DummyYOLO:
 @pytest.fixture(autouse=True)
 def mock_model(monkeypatch):
 
-    monkeypatch.setattr("API_detection.api_detection.model", DummyYOLO())
+    monkeypatch.setattr("api_detection.main.model", DummyYOLO())
     yield
 
 # --- test api access ---
@@ -32,14 +32,14 @@ def test_docs_available():
     assert response.status_code == 200
 
 def test_detect_no_file():
-    response = client.post("/api/image/detection")
+    response = client.post("/process_image")
     assert response.status_code == 422  
 
 
 # --- invalid file ---
 def test_detect_invalid_file():
     response = client.post(
-        "/api/image/detection",
+        "/process_image",
         files={"file": ("test.txt", b"not an image", "text/plain")}
     )
     assert response.status_code == 422
@@ -48,7 +48,7 @@ def test_detect_invalid_file():
 def test_detect_empty_file():
     empty_bytes = io.BytesIO(b"")
     response = client.post(
-        "/api/image/detection",
+        "/process_image",
         files={"file": ("empty.jpg", empty_bytes, "image/jpeg")}
     )
     assert response.status_code == 400
@@ -65,7 +65,7 @@ def test_detect_image_success():
     img_bytes = io.BytesIO(buffer.tobytes())
 
     response = client.post(
-        "/api/image/detection",
+        "/process_image",
         files={"file": ("fake.jpg", img_bytes, "image/jpeg")}
     )
 
