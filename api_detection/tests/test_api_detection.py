@@ -6,8 +6,8 @@ import numpy as np
 
 import base64
 from fastapi.testclient import TestClient
-from API_detection.api_detection import app
-from API_detection.api_detection import model
+from api_detection.main import app
+from api_detection.main import model
 
 # --- client ---
 client = TestClient(app)
