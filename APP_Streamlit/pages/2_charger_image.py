@@ -1,5 +1,7 @@
 #APP_Streamlit/pages/1_charger_image.py
-
+import cv2
+import base64
+import numpy as np
 import io
 import streamlit as st
 from PIL import Image
@@ -59,6 +61,13 @@ if uploaded_file is not None:
                     timeout=15
                 )
                 data = response.json()
+
+                base64_str = data['detection_result']["image_base64"]                
+                img_bytes = base64.b64decode(base64_str)
+                img = Image.open(io.BytesIO(img_bytes))
+                st.image(img, caption="YOLO detection result")
+
+
                 if response.status_code == 200:
                     st.success("Image envoyée")
                     st.info(data['description_result']['message'])

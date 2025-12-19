@@ -1,10 +1,10 @@
 # DETECTION_en_temps_reel/API_description/tests/test_api_description.py
 import io
 import cv2
-
+import numpy as np
 import base64
 from fastapi.testclient import TestClient
-from api_detection import app
+from API_detection.main import app
 
 
 # --- client ---
@@ -25,35 +25,36 @@ def test_docs_available():
     assert response.status_code == 200
 
 def test_detect_no_file():
-    response = client.post("/api/image/detection")
-    assert response.status_code == 422  
+    response = client.post("/process_image")
+    assert response.status_code == 422
 
 # --- invalid file ---
 def test_detect_invalid_file():
     response = client.post(
-        "/api/image/detection",
+        "/process_image",
         files={"file": ("test.txt", b"not an image", "text/plain")}
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 
 # --- test success ---
+from PIL import Image
 def test_detect_image_success():
-    with open("tests/assets/test.jpg", "rb") as f:
-        response = client.post(
-            "/api/image/detection",
-            files={"file": ("test.jpg", f, "image/jpeg")}
-        )
+    # Create a fake image in memory
+    buf = io.BytesIO()
+    Image.new('RGB', (100, 100), color='red').save(buf, format='JPEG')
+    buf.seek(0)
+
+    response = client.post(
+        "/process_image",
+        files={"file": ("test.jpg", buf, "image/jpeg")}
+    )
 
     assert response.status_code == 200
-
     data = response.json()
-
-    assert "status" in data
     assert data["status"] == "success"
-
     assert "image_base64" in data
     assert isinstance(data["image_base64"], str)
 
