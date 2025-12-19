@@ -97,7 +97,7 @@ if __name__ == "__main__":
         port = 8080
 
     uvicorn.run(
-        "API_description.main:app",
+        "api_description.main:app",
         reload = False,
         port = port,
         host = url,
