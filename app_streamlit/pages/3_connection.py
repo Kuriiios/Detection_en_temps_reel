@@ -28,16 +28,12 @@ with st.form(key="form_utilisateur"):
 
         try:
             response = requests.post(f"{BASE_URL}/login/", json=user_data)
-            st.session_state['api_result'] = response.json()
-            token = response.json()
-            st.success(token['access_token'])
             st.info(response.status_code)
             if response.status_code == 200:
                 result = response.json()
-                if result.get("access_token"):
-                    st.success("Successfully connected !")
-                else:
-                    st.error("Erreur lors de la création du compte.")
+                token = result["access_token"]
+                st.session_state["access_token"] = token
+                st.success("Successfully connected !")
             else:
                 st.error(f"Erreur API : {response.status_code}")
         except Exception as e:
@@ -46,10 +42,13 @@ with st.form(key="form_utilisateur"):
 
 if st.session_state.get('api_result') is not None:
     if st.button(label="Sign Out"):
-        try:
-            token = st.session_state['api_result']
-            response = requests.post(f"{BASE_URL}/logout/", json={"access_token" : token['access_token']})
-            st.success(token)
-            st.info(response.status_code)
-        except Exception as e:
-            st.error(f"Error on : {e}")
+        headers = {
+            "Authorization": f"Bearer {token['access_token']}"
+        }
+        response = requests.post(f"{BASE_URL}/logout/", headers=headers)
+
+        if response.status_code == 200:
+            st.session_state.pop("access_token", None)
+            st.success("Logged out")
+        else:
+            st.error("Logout failed")

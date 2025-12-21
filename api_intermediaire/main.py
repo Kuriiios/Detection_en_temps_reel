@@ -39,6 +39,10 @@ class DeconnectionRequest(BaseModel):
 def landing_page():
     return {'Placeholder': 'Welcome'}
 
+@app.get('/me')
+def landing_page():
+    return {'Placeholder': 'Welcome'}
+
 @app.post("/create-user/", response_model = InsertResponse)
 def create_user(user : UserRequest):
     response = add_new_user(user)
