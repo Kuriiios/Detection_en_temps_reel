@@ -1,4 +1,4 @@
-from api_intermediaire.modules.db_tools import add_new_user
+from api_intermediaire.modules.db_tools import add_new_user, sign_in, sign_out
 import uvicorn
 from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -12,6 +12,11 @@ API_DETECTION_URL = os.getenv("API_DETECTION_URL") + "/process_image"
 
 app = FastAPI(title="API")
 
+class ConnectionResponse(BaseModel):
+    access_token : str
+    token_type : str
+    expires_in : int
+
 class InsertResponse(BaseModel):
     response : bool
 
@@ -23,6 +28,13 @@ class UserRequest(BaseModel):
     password : str
     city : str
 
+class ConnectionRequest(BaseModel):
+    email : str
+    password : str
+
+class DeconnectionRequest(BaseModel):
+    access_token : str
+
 @app.get('/')
 def landing_page():
     return {'Placeholder': 'Welcome'}
@@ -32,6 +44,15 @@ def create_user(user : UserRequest):
     response = add_new_user(user)
     return response
 
+@app.post("/login/", response_model = ConnectionResponse)
+def connection(user_connection : ConnectionRequest):
+    token_response = sign_in(user_connection)
+    return token_response
+
+@app.post("/logout/", response_model = InsertResponse)
+def connection(deconnection : DeconnectionRequest):
+    server_response = sign_out(deconnection)
+    return server_response
 
 @app.post("/api/image/process")
 async def process_image(file: UploadFile = File(...)):
