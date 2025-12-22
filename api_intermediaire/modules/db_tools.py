@@ -91,3 +91,13 @@ def sign_out(deconnection_data):
             session.rollback()
             logger.error(f"Error during sign out: {e}")
             return {"response": False}
+
+def get_user_infos(current_user):
+    return {
+        "firstname": current_user["firstname"],
+        "lastname": current_user["lastname"],
+        "username": current_user["username"],
+        "email": current_user["email"],
+        "created_at": current_user["created_at"],
+        "city": current_user["city"],
+    }

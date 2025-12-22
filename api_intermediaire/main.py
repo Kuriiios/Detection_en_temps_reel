@@ -1,7 +1,9 @@
-from api_intermediaire.modules.db_tools import add_new_user, sign_in, sign_out
+from api_intermediaire.modules.db_tools import add_new_user, sign_in, sign_out, get_user_infos
+from api_intermediaire.middleware.auth import get_current_user
 import uvicorn
+from database.data.models import User
 from pydantic import BaseModel
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Depends
 from dotenv import load_dotenv
 import os
 import httpx
@@ -39,9 +41,19 @@ class DeconnectionRequest(BaseModel):
 def landing_page():
     return {'Placeholder': 'Welcome'}
 
-@app.get('/me')
-def landing_page():
-    return {'Placeholder': 'Welcome'}
+@app.get("/me")
+def get_user(current_user: dict = Depends(get_current_user)):
+    return get_user_infos(current_user)
+    '''
+    return {
+        "firstname": current_user["firstname"],
+        "lastname": current_user["lastname"],
+        "username": current_user["username"],
+        "email": current_user["email"],
+        "created_at": current_user["created_at"],
+        "city": current_user["city_id"],
+    }
+    '''
 
 @app.post("/create-user/", response_model = InsertResponse)
 def create_user(user : UserRequest):

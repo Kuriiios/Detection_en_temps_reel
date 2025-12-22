@@ -118,9 +118,14 @@ pré-entraîné. La description sera affichée à l'utilisateur dans l'interface
 **MPD**
 
 ### Répartition US:
-**Hanna :** US 7 (5 points), US 6 (3 points)
-**Djanamali :** US 1 (2 points), US 2 (3 points), US 5 (3 points)
-**Cyril :** US 3 (5 points), US 4 (5 points)
+- SPRINT 1 :
+    **Hanna :** US 7 (5 points), US 6 (3 points)
+    **Djanamali :** US 1 (2 points), US 2 (3 points), US 5 (3 points)
+    **Cyril :** US 3 (5 points), US 4 (5 points)
+- SPRINT 2 :
+    **Hanna :** US 10, US 11, US 14 
+    **Djanamali :** US 15 , US 16, US 8, US 9, US 12
+    **Cyril :** US 17, US 18, US 19, US 20
 
 ### Liens Internes:
 * [Excalidraw](https://excalidraw.com/#room=dc221f1a8d9507c1e77d,XtKv-aLhHVwFvLK4v--Q_Q) 

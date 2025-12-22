@@ -33,6 +33,7 @@ with st.form(key="form_utilisateur"):
                 result = response.json()
                 token = result["access_token"]
                 st.session_state["access_token"] = token
+                st.session_state["authenticated"] = True
                 st.success("Successfully connected !")
             else:
                 st.error(f"Erreur API : {response.status_code}")

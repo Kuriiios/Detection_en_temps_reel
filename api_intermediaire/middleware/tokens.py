@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
 from api_intermediaire.modules.db_tools import get_db_session
+from database.data.models import Token
 
 def validate_token(token):
     with get_db_session() as session:
-        record = session.get_token(token)
-
+        record = session.query(Token).filter_by(token = token).first()
         if not record:
             return None
 
-        if record.expires_at < datetime.now(timezone.utc):
+        if record.expires_at < datetime.now():
             session.delete_token(token)
             return None
 
