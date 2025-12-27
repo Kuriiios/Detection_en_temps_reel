@@ -9,8 +9,29 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+with st.sidebar:
+    st.image("logo.png", width="stretch")
+    st.divider()
+    st.caption(" • YOLOv11 • BLIP • ")
 
-API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL") + "/api/image/process"
+    confidence = st.slider(
+        "Seuil de confiance",
+        0.1, 1.0, 0.5
+    )
+
+    show_labels = st.checkbox("Afficher les labels", value=True)
+    show_scores = st.checkbox("Afficher les scores", value=True)
+
+    st.divider()
+
+    st.caption(" • YOLOv11 • BLIP • ")
+
+base_url = os.getenv("API_INTERMEDIAIRE_URL")
+
+if not base_url:
+    raise RuntimeError("API_INTERMEDIAIRE_URL n’est pas définie")
+
+API_INTERMEDIAIRE_URL = base_url.rstrip("/") + "/api/image/process"
 
 # TITRE
 st.title("Charger une image et envoyer aux APIs")
