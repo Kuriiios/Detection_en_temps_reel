@@ -1,21 +1,20 @@
 import streamlit as st
+import base64
 
 st.set_page_config(
     page_title="NeuroVision",
     layout="wide"
 )
 
-st.title("NeuroVision")
-
 with st.sidebar:
-    st.image("logo.png", width="stretch")
+    st.image("app_streamlit/logo.png", width="stretch")
     st.divider()
     st.caption(" • YOLOv11 • BLIP • ")
 
 
 titl1, title2 = st.columns([1, 5])
 with titl1:
-    st.image("logo_sq.png")
+    st.image("app_streamlit/logo_sq.png")
 
 with title2:
     st.markdown(
@@ -50,34 +49,33 @@ with col1:
         Grâce à un modèle de génération de texte Hugging Face (Salesforce/blip-image-captioning-base) , l’application produit une description naturelle et complète de ce qui est visible dans l’image.
         Cela vous permet de comprendre rapidement le contenu visuel sans lecture manuelle détaillée.
                 """)
-    
+
+import base64
+
+def load_image_base64(path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+img_base64 = load_image_base64("app_streamlit/exemp.png")
+
 with col2:
     st.markdown(
-        """
-        <div style="
-            display:flex;
-            justify-content:center;
-            margin-top:20px;
-        ">
+        f"""
+        <div style="display:flex; justify-content:center; margin-top:20px;">
             <div style="
                 border:2px solid #FF3B3F;
                 padding:20px;
-                border-radius:14px;
+                border-radius:16px;
                 max-width:700px;
                 width:100%;
+                background:#0e0e0e;
             ">
-                <h4 style="
-                    color:#FF3B3F;
-                    text-align:center;
-                    margin-bottom:12px;
-                ">
+                <h4 style="color:#FF3B3F; text-align:center; margin-bottom:16px;">
                     Exemple d’analyse en temps réel
                 </h4>
 
-                <video width="100%" controls>
-                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-                    Votre navigateur ne supporte pas la lecture vidéo.
-                </video>
+                <img src="data:image/png;base64,{img_base64}"
+                     style="width:100%; border-radius:12px; display:block;">
             </div>
         </div>
         """,
@@ -85,7 +83,7 @@ with col2:
     )
 
      
-but1, but2 = st.columns([1, 2], gap='small', width="stretch")
+but1, but2, but3 = st.columns(3, gap='small', width="stretch")
 
 with but2:
     button1 = st.checkbox("Comment ça marche")
@@ -126,3 +124,17 @@ with but1:
             unsafe_allow_html=True, width="stretch"
         )
 
+with but3:
+
+    button3 = st.checkbox("Paramètres disponibles")
+
+    if button3:
+        st.markdown(
+            """
+                - Accurancy
+                - Afficher les labels
+                - Afficher les scores
+                - Afficher les resultes de detection
+                    - objects
+                    - boxes
+            """)

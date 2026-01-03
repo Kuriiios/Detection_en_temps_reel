@@ -9,10 +9,12 @@ load_dotenv()
 BASE_URL = f"http://{os.getenv('API_BASE_URL', '127.0.0.1')}:{os.getenv('API_INTERMEDIAIRE_PORT', '8080')}"
 
 with st.sidebar:
-    st.image("logo.png", width="stretch")
+    st.image("app_streamlit/logo.png", width="stretch")
     st.divider()
     st.caption(" • YOLOv11 • BLIP • ")
 
+# TITRE
+st.image("app_streamlit/logo_hd.jpg")
 st.title("Formulaire")
 
 with st.form(key="form_utilisateur"):
