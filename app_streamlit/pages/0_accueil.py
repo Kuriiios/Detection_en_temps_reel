@@ -12,26 +12,8 @@ with st.sidebar:
     st.caption(" • YOLOv11 • BLIP • ")
 
 
-titl1, title2 = st.columns([1, 5])
-with titl1:
-    st.image("app_streamlit/logo_sq.png")
-
-with title2:
-    st.markdown(
-    """
-    <h1 style="
-        font-size: 48px;
-        color: white;
-    ">
-        <span style='color:white'>Neuro</span><span style='color:#FF3B3F'>Vision</span>
-    </h1>
-    """,
-    unsafe_allow_html=True
-)
-    st.markdown("""
-        NeuroVision est une application web interactive qui vous permet d’analyser des images à l’aide de modèles
-        d’intelligence artificielle avancés. Choisissez soit votre caméra intégrée, soit téléchargez une image depuis votre ordinateur, puis explorez automatiquement ce que l’image contient grâce à nos modèles IA.
-            """)
+# TITLE
+st.image("app_streamlit/logo_text.png", width="stretch")
 
 
 col1,col2 = st.columns( [1, 2], gap='small', width="stretch")
@@ -50,13 +32,6 @@ with col1:
         Cela vous permet de comprendre rapidement le contenu visuel sans lecture manuelle détaillée.
                 """)
 
-import base64
-
-def load_image_base64(path):
-    with open(path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
-
-img_base64 = load_image_base64("app_streamlit/exemp.png")
 
 with col2:
     st.markdown(
@@ -68,19 +43,16 @@ with col2:
                 border-radius:16px;
                 max-width:700px;
                 width:100%;
-                background:#0e0e0e;
             ">
                 <h4 style="color:#FF3B3F; text-align:center; margin-bottom:16px;">
                     Exemple d’analyse en temps réel
                 </h4>
-
-                <img src="data:image/png;base64,{img_base64}"
-                     style="width:100%; border-radius:12px; display:block;">
             </div>
         </div>
         """,
         unsafe_allow_html=True
     )
+    st.image("app_streamlit/exemp.png", width="stretch")
 
      
 but1, but2, but3 = st.columns(3, gap='small', width="stretch")
@@ -131,10 +103,12 @@ with but3:
     if button3:
         st.markdown(
             """
-                - Accurancy
+                - Choisir accurancy
                 - Afficher les labels
                 - Afficher les scores
                 - Afficher les resultes de detection
                     - objects
                     - boxes
+                    - accurancy
+                    - distributions
             """)

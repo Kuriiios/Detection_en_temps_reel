@@ -46,7 +46,7 @@ async def process_image(file: UploadFile = File(...)):
     
     files = {"file" : (file.filename, content, file.content_type)}
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=45.0) as client:
         try:
             #ENVOIE API DESCRIPTION
             response_desc = await client.post(API_DESCRIPTION_URL, files=files)
