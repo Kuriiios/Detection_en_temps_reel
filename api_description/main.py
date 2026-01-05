@@ -48,7 +48,7 @@ except:
 
 
 # --- endpoints ---
-@app.post("/process_image", response_model=Union[ImageDescriptionResponse, dict])
+@app.post("/api/process_image", response_model=Union[ImageDescriptionResponse, dict])
 async def describe_image(file: UploadFile = File(...)):
 
     global processor, model 
