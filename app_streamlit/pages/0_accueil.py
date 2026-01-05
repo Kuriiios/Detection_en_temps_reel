@@ -1,23 +1,50 @@
+#APP_Streamlit/pages/0_accueil.py
+
+# --- import ---
 import streamlit as st
 import base64
 
+import logging
+
+# --- logging --- 
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler("app.log"),  # <-----------------------to file
+        logging.StreamHandler()        
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+# --- page config --- 
 st.set_page_config(
     page_title="NeuroVision",
     layout="wide"
 )
 
+# --- SLIDERBAR ---
 with st.sidebar:
-    st.image("app_streamlit/logo.png", width="stretch")
+    try:
+        st.image("app_streamlit/logo.png", width="stretch")
+    except Exception as e:
+        logger.warning("logo not loaded", exc_info=e)
+        st.warning("logo indisponible")
+
     st.divider()
     st.caption(" • YOLOv11 • BLIP • ")
 
-
 # TITLE
-st.image("app_streamlit/logo_text.png", width="stretch")
-
+try:
+    st.image("app_streamlit/logo_text.png", width="stretch")
+except Exception as e:
+        logger.warning("logo_text not loaded", exc_info=e)
+        st.warning("logo_text indisponible")
 
 col1,col2 = st.columns( [1, 2], gap='small', width="stretch")
 
+# DESCRIPTION DE FONCTIONALITE
 with col1:
 
     st.markdown("""
@@ -32,7 +59,7 @@ with col1:
         Cela vous permet de comprendre rapidement le contenu visuel sans lecture manuelle détaillée.
                 """)
 
-
+# EXEMPLE À TITRE DE DÉMONSTRATION
 with col2:
     st.markdown(
         f"""
@@ -52,12 +79,18 @@ with col2:
         """,
         unsafe_allow_html=True
     )
-    st.image("app_streamlit/exemp.png", width="stretch")
 
-     
-but1, but2, but3 = st.columns(3, gap='small', width="stretch")
+    try:
+        st.image("app_streamlit/exemp.png", width="stretch")
+    except Exception as e:
+        logger.warning("exemp.png not loaded", exc_info=e)
+        st.warning("exemp.png indisponible")
 
-with but2:
+# INFORMATION SUPLIMONTAIRE
+checkbox1, checkbox2, checkbox3 = st.columns(3, gap='small', width="stretch")
+
+
+with checkbox2:
     button1 = st.checkbox("Comment ça marche")
     if button1:
         st.markdown("""
@@ -71,7 +104,7 @@ with but2:
             - Explorez et téléchargez les résultats
             """)
 
-with but1:
+with checkbox1:
 
     button2 = st.checkbox("Technologies utilisées")
 
@@ -96,7 +129,7 @@ with but1:
             unsafe_allow_html=True, width="stretch"
         )
 
-with but3:
+with checkbox3:
 
     button3 = st.checkbox("Paramètres disponibles")
 
@@ -112,3 +145,5 @@ with but3:
                     - accurancy
                     - distributions
             """)
+
+logger.info("Home page loaded")
