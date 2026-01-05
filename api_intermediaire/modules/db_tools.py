@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, sessionmaker
-from  database.data.models import User, City, Token
+from  database.data.models import User, City, Token, Object, ObjectPerUser
 from database.data.db_init import ENGINE
 import datetime
 import secrets
@@ -25,7 +25,7 @@ def get_db_session() -> Session:
 
 def add_new_user(user):
     with get_db_session() as session:
-        created_at = datetime.datetime.now()
+        created_at = datetime.now()
         try:
             city_from_db = session.query(City).filter_by(name = user.city).first()
             logger.success('Successfully retrieved city from db')
@@ -101,3 +101,25 @@ def get_user_infos(current_user):
         "created_at": current_user["created_at"],
         "city": current_user["city"],
     }
+
+def get_user_id(user_email):
+    with get_db_session() as session:
+        try:
+            email_index = User.generate_index(user_email)
+            user_from_db = session.query(User).filter_by(email_index = email_index).first()
+            return user_from_db.id
+        except Exception as e:
+            logger.warning(f'User not found {e}')
+
+def get_user_objects(current_user_id):
+    with get_db_session() as session:
+        try:
+            objects_from_db = (session.query(Object)
+                               .join(ObjectPerUser, Object.id == ObjectPerUser.object_id)
+                               .join(User, ObjectPerUser.user_id == User.id)
+                               .where(User.id == current_user_id)
+                               .all())
+            return objects_from_db
+        except Exception as e:
+            logger.warning(f'User not found {e}')
+            return []
