@@ -1,7 +1,9 @@
-from api_intermediaire.modules.db_tools import add_new_user
+from api_intermediaire.modules.db_tools import add_new_user, sign_in, sign_out, get_user_infos, get_user_objects
+from api_intermediaire.middleware.auth import get_current_user
 import uvicorn
+from database.data.models import User
 from pydantic import BaseModel
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Depends
 from dotenv import load_dotenv
 import os
 import httpx
@@ -11,6 +13,11 @@ API_DESCRIPTION_URL = os.getenv("API_DESCRIPTION_URL") + "/process_image"
 API_DETECTION_URL = os.getenv("API_DETECTION_URL") + "/process_image"
 
 app = FastAPI(title="API")
+
+class ConnectionResponse(BaseModel):
+    access_token : str
+    token_type : str
+    expires_in : int
 
 class InsertResponse(BaseModel):
     response : bool
@@ -23,15 +30,39 @@ class UserRequest(BaseModel):
     password : str
     city : str
 
+class ConnectionRequest(BaseModel):
+    email : str
+    password : str
+
+class DeconnectionRequest(BaseModel):
+    access_token : str
+
 @app.get('/')
 def landing_page():
     return {'Placeholder': 'Welcome'}
+
+@app.get("/me")
+def get_user(current_user: dict = Depends(get_current_user)):
+    return get_user_infos(current_user)
+
+@app.get("/objects")
+def get_user(current_user: dict = Depends(get_current_user)):
+    return get_user_objects(current_user)
 
 @app.post("/create-user/", response_model = InsertResponse)
 def create_user(user : UserRequest):
     response = add_new_user(user)
     return response
 
+@app.post("/login/", response_model = ConnectionResponse)
+def connection(user_connection : ConnectionRequest):
+    token_response = sign_in(user_connection)
+    return token_response
+
+@app.post("/logout/", response_model = InsertResponse)
+def connection(deconnection : DeconnectionRequest):
+    server_response = sign_out(deconnection)
+    return server_response
 
 @app.post("/api/image/process")
 async def process_image(file: UploadFile = File(...)):
