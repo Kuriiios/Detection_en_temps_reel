@@ -40,7 +40,7 @@ def test_model_not_loaded(monkeypatch):
     file.seek(0)
 
     response = client.post(
-        "/process_image",
+        "/api/process_image",
         files={"file": ("test.jpg", file, "image/jpeg")}
     )
 
@@ -50,7 +50,7 @@ def test_model_not_loaded(monkeypatch):
 def test_invalid_media_type():
     file = io.BytesIO(b"not an image")
     response = client.post(
-        "/process_image",
+        "/api/process_image",
         files={"file": ("test.txt", file, "text/plain")}
     )
 
@@ -70,7 +70,7 @@ def test_success(monkeypatch):
     file.seek(0)
 
     response = client.post(
-        "/process_image",
+        "/api/process_image",
         files={"file": ("test.jpg", file, "image/jpeg")}
     )
 

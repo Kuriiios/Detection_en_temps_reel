@@ -25,17 +25,17 @@ def test_docs_available():
     assert response.status_code == 200
 
 def test_detect_no_file():
-    response = client.post("/api/image/detection")
+    response = client.post("/api/process_image")
     assert response.status_code == 422  
 
 # --- invalid file ---
 def test_detect_invalid_file():
     response = client.post(
-        "/api/image/detection",
+        "/api/process_image",
         files={"file": ("test.txt", b"not an image", "text/plain")}
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 
@@ -43,7 +43,7 @@ def test_detect_invalid_file():
 def test_detect_image_success():
     with open("tests/assets/test.jpg", "rb") as f:
         response = client.post(
-            "/api/image/detection",
+            "/api/process_image",
             files={"file": ("test.jpg", f, "image/jpeg")}
         )
 

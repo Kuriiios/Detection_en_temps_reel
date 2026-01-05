@@ -100,21 +100,28 @@ async def detection(file: UploadFile = File(...)):
 
 # transfomation l'information suplimontaire
         r = results[0]
-        boxes = r.boxes
-        class_names = r.names
         
-        cls_list = [class_names[int(boxes.cls[i])] for i in range(len(boxes))]
-        
+        boxes = getattr(r, "boxes", None)
+        orig_shape = getattr(r, "orig_shape", img_np.shape[:2])
+        speed = getattr(r, "speed", {})
 
-        inform = {
-            "image_shape": r.orig_shape,
-            "speed": r.speed,
-            "detections": {
-                "boxes": boxes.xyxy.cpu().tolist(),
-                "scores": boxes.conf.cpu().tolist(),
-                "class_name": cls_list
+        if boxes is None:
+            inform = {
+                "image_shape": orig_shape,
+                "speed": speed,
+                "detections": {"boxes": [], "scores": [], "class_name": []}
             }
-        }
+        else:
+            cls_list = [r.names[int(c)] for c in boxes.cls.tolist()]
+            inform = {
+                "image_shape": orig_shape,
+                "speed": speed,
+                "detections": {
+                    "boxes": boxes.xyxy.cpu().tolist(),
+                    "scores": boxes.conf.cpu().tolist(),
+                    "class_name": cls_list
+                }
+            }
 
     except Exception as e:
         logger.error(f"Cannot generate new image with boxes: {str(e)}", )
