@@ -4,7 +4,7 @@ import cv2
 
 import base64
 from fastapi.testclient import TestClient
-from api_detection import app
+from api_detection.main import app
 
 
 # --- client ---
