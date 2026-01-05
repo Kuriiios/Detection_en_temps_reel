@@ -283,62 +283,67 @@ if uploaded_file is not None and data:
     st.divider()
 
     if st.checkbox("Afficher des informations supplémentaires de detection", value=True):
-        # Affichage le dataFrame
-        st.text("Objets detectés:")
-        st.dataframe(df)
+        try:
+            # Affichage le dataFrame
+            st.text("Objets detectés:")
+            st.dataframe(df)
 
-        # Visualisation les grafiques
-        graf1, graf2, graf3 = st.columns(3, gap = "small")
+            # Visualisation les grafiques
+            graf1, graf2, graf3 = st.columns(3, gap = "small")
 
-        with graf1:
-            fig, ax = plt.subplots()
-            sns.histplot(
-                data=df,
-                x="scores",
-                bins=20,
-                kde=True,
-                ax=ax,
-                color=RED
-            )
-            ax.set_title("Distribution des confiances")
-            ax.set_xlabel("Confidence")
-            ax.set_ylabel("Nombre d'objets")
+            with graf1:
+                fig, ax = plt.subplots()
+                sns.histplot(
+                    data=df,
+                    x="scores",
+                    bins=20,
+                    kde=True,
+                    ax=ax,
+                    color=RED
+                )
+                ax.set_title("Distribution des confiances")
+                ax.set_xlabel("Confidence")
+                ax.set_ylabel("Nombre d'objets")
 
-            st.pyplot(fig)
+                st.pyplot(fig)
 
-        with graf3:
-            fig, ax = plt.subplots()
-            sns.countplot(
-                data=df,
-                x="class_name",
-                order=df["class_name"].value_counts().index,
-                ax=ax,
-                color=RED
-            )
+            with graf3:
+                fig, ax = plt.subplots()
+                sns.countplot(
+                    data=df,
+                    x="class_name",
+                    order=df["class_name"].value_counts().index,
+                    ax=ax,
+                    color=RED
+                )
 
-            ax.set_title("Nombre d'objets par classe")
-            ax.set_ylabel("Count")
-            ax.set_xlabel("Classe")
+                ax.set_title("Nombre d'objets par classe")
+                ax.set_ylabel("Count")
+                ax.set_xlabel("Classe")
 
-            st.pyplot(fig)
+                st.pyplot(fig)
 
-        with graf2:
-            fig, ax = plt.subplots()
+            with graf2:
+                fig, ax = plt.subplots()
 
-            sns.boxplot(
-                data=df,
-                y="scores",
-                x="class_name",
-                ax=ax,
-                color=RED
-            )
+                sns.boxplot(
+                    data=df,
+                    y="scores",
+                    x="class_name",
+                    ax=ax,
+                    color=RED
+                )
 
-            ax.set_title("Confidence par classe")
-            ax.set_ylabel("Confidence")
-            ax.set_xlabel("Classe")
+                ax.set_title("Confidence par classe")
+                ax.set_ylabel("Confidence")
+                ax.set_xlabel("Classe")
 
-            st.pyplot(fig)
+                st.pyplot(fig)
 
-        # Visualisation les metric
-        st.metric("Inference (ms)", round(data['detection_result']["result"]["speed"]["inference"], 1))
-        st.metric("Postprocess (ms)", round(data['detection_result']["result"]["speed"]["postprocess"], 1))
+            # Visualisation les metric
+            st.metric("Inference (ms)", round(data['detection_result']["result"]["speed"]["inference"], 1))
+            st.metric("Postprocess (ms)", round(data['detection_result']["result"]["speed"]["postprocess"], 1))
+
+        except Exception as e:
+            logging.error("Error of visualisation additional information")
+            st.error(f"Error of visualisation additional information: {e}")
