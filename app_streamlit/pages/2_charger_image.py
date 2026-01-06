@@ -1,4 +1,4 @@
-#APP_Streamlit/pages/1_charger_image.py
+#app_streamlit/pages/2_charger_image.py
 import base64
 import io
 import streamlit as st
@@ -56,7 +56,7 @@ if uploaded_file is not None:
                 response = requests.post(
                     API_INTERMEDIAIRE_URL,
                     files=files,
-                    timeout=15
+                    timeout=30
                 )
                 data = response.json()
 
@@ -74,8 +74,8 @@ if uploaded_file is not None:
                         f"Erreur lors de l'envoi de l'image (status {response.status_code})"
                     )
             
-    except Exception:
-        st.error("Impossible de lire le fichier")
+    except Exception as e:
+        st.error(f"Impossible de lire le fichier : {e}")
 
 else:
     st.warning("Sélectionner une image")
