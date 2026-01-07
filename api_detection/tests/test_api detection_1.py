@@ -1,6 +1,7 @@
 # DETECTION_en_temps_reel/API_description/tests/test_api_description.py
 import io
 import cv2
+import numpy as np
 
 import base64
 from fastapi.testclient import TestClient
