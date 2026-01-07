@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, BLOB, Float
 from sqlalchemy.orm import relationship, DeclarativeBase
 from database.modules.encryption_db import EncryptedString, BcryptPassword
 from datetime import datetime
@@ -92,7 +92,8 @@ class Object(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    url = Column(String, nullable=False)
+    confidence = Column(Float, nullable=False)
+    img_binary = Column(BLOB, nullable=False)
     date = Column(Date, nullable=False)
 
     user_per_object = relationship('ObjectPerUser', back_populates='object')
@@ -106,5 +107,5 @@ class Token(Base):
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship('User', back_populates='token')
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
     expires_at = Column(DateTime)

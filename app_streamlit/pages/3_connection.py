@@ -28,7 +28,6 @@ with st.form(key="form_utilisateur"):
 
         try:
             response = requests.post(f"{BASE_URL}/login/", json=user_data)
-            st.info(response.status_code)
             if response.status_code == 200:
                 result = response.json()
                 token = result["access_token"]

@@ -6,8 +6,15 @@ pages = {
         st.Page("pages/0_accueil.py", title="Description"),
     ],
     "Analyse": [
-        st.Page("pages/1_formulaire.py", title="Formulaire"),
         st.Page("pages/2_charger_image.py", title="Télécharger une image"),
+        st.Page("pages/3_mode_webcam.py", title="Photo"),
+        st.Page("pages/4_webcam_temps_reel.py", title="Video"),
+    ],
+    "Utilisateur": [
+        st.Page("pages/1_formulaire.py", title="Formulaire"),
+        st.Page("pages/3_connection.py", title="Login"),
+        st.Page("pages/4_user_infos.py", title="Informations utilisateur"),
+        st.Page("pages/5_objects_found.py", title="Objects utilisateur"),
     ],
 }
 

@@ -11,8 +11,8 @@ import os
 import httpx
 load_dotenv()
 
-API_DESCRIPTION_URL = os.getenv("API_DESCRIPTION_URL") + "/process_image"
-API_DETECTION_URL = os.getenv("API_DETECTION_URL") + "/process_image"
+API_DESCRIPTION_URL = os.getenv("API_DESCRIPTION_URL") + "/api/process_image"
+API_DETECTION_URL = os.getenv("API_DETECTION_URL") + "/api/process_image"
 
 app = FastAPI(title="API")
 
@@ -66,7 +66,7 @@ def connection(deconnection : DeconnectionRequest):
     server_response = sign_out(deconnection)
     return server_response
 
-@app.post("/api/image/process")
+@app.post("/api/process_image")
 async def process_image(file: UploadFile = File(...)):
     #ON VERIFIE LE TYPE
     if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
@@ -103,6 +103,9 @@ async def process_image(file: UploadFile = File(...)):
         "detection_result": det_result
     }
 
+@app.post("/api/objects/save")
+def save_objects():
+    return None
 
 if __name__ == "__main__":
     try:

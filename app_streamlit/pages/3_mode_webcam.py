@@ -11,7 +11,7 @@ load_dotenv()
 
 API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL")
 if API_INTERMEDIAIRE_URL:
-    API_INTERMEDIAIRE_URL += "/api/image/process"
+    API_INTERMEDIAIRE_URL += "/api/process_image"
 
 st.title("Mode temps réel : upload ou webcam")
 
@@ -46,7 +46,6 @@ if mode == "Uploader une image":
                         response = requests.post(API_INTERMEDIAIRE_URL, files=files, timeout=30)
 
                         st.write("Status code:", response.status_code)
-                        st.write("Response text:", response.text)
 
                         if response.status_code == 200:
                             st.success("Image envoyée avec succès")
