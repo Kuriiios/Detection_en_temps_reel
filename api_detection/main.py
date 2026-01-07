@@ -1,4 +1,4 @@
-# DETECTION_en_temps_reel/API_detection/api_detection.py
+#api_detection/main.py
 
 # --- import ---
 import io
