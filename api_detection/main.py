@@ -23,7 +23,7 @@ from api_detection.modules.utils import convert_to_binary
 
 import logging
 
-API_INTERMEDIAIRE_URL = os.getenv("API_DETECTION_URL") + "/api/objects/save"
+API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL") + "/api/objects/save"
 
 # --- logging --- 
 logging.basicConfig(
