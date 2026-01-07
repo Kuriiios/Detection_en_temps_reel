@@ -8,6 +8,9 @@ pages = {
     "Analyse": [
         st.Page("pages/1_formulaire.py", title="Formulaire"),
         st.Page("pages/2_charger_image.py", title="Télécharger une image"),
+        st.Page("pages/6_historique_image.py", title="Historique des images et description"),
+
+
     ],
 }
 

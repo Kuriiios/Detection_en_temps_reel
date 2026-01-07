@@ -11,6 +11,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
+if "history" not in st.session_state:
+    st.session_state.history = []
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -176,12 +180,33 @@ with col2:
                 logger.error(f"API error: {response.text}")
                 raise RuntimeError("Server returned an error while processing the image")
 
+            # ============================
+            # LECTURE JSON
+            # ============================
             try:
                 data = response.json()
             except ValueError:
                 logger.exception("Failed to decode JSON from API response")
                 raise RuntimeError("Invalid JSON returned from server")
 
+
+            # ============================
+            # SAUVEGARDE DANS L'HISTORIQUE
+            # ============================
+            try:
+                st.session_state.history.append({
+                    "filename": uploaded_file.name,
+                    "image_base64": data.get("detection_result", {}).get("image_base64"),
+                    "description": data.get("description_result", {}).get("message", "")
+                })
+                logger.info("Image ajoutée à l'historique")
+            except Exception as e:
+                logger.warning("Impossible d'ajouter à l'historique", exc_info=e)
+
+
+            # ============================
+            # EXTRACTION DES DÉTECTIONS
+            # ============================
             try:
                 detections = data["detection_result"]["result"]["detections"]
                 boxes = detections["boxes"]
