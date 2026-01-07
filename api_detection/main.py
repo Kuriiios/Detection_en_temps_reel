@@ -9,6 +9,8 @@ import numpy as np
 from PIL import Image
 from dotenv import load_dotenv
 import os
+import matplotlib.pyplot as plt
+
 load_dotenv()
 
 from fastapi import FastAPI, UploadFile, File,  HTTPException
@@ -37,6 +39,7 @@ app = FastAPI()
 class ImageResponse(BaseModel):
     status: str
     image_base64: str
+    result: dict
 
 
 # --- global variables, try to load model: n/s/m/l/x----
@@ -46,7 +49,7 @@ try:
 except:
     model = None
 
-@app.post("/process_image", response_model= ImageResponse)
+@app.post("/api/process_image", response_model= ImageResponse)
 async def detection(file: UploadFile = File(...)):
 
     global model 
@@ -54,12 +57,12 @@ async def detection(file: UploadFile = File(...)):
 # --- verification file type ---    
     if not file.filename.lower().endswith((".jpg", ".jpeg", ".png")):
         logger.error("Invalid file type.")
-        raise HTTPException(status_code=422, detail={"status": "422", "image_base64": "Invalid file type. Only JPG/PNG allowed."})
+        raise HTTPException(status_code=422, detail={"status": "422", "image_base64": "Invalid file type. Only JPG/PNG allowed.", "result":{}})
 
 # --- verification exsistance model ---
     if model is None:
         logger.error("The model isn't loaded.")
-        raise HTTPException(status_code=503, detail={"status": "503", "image_base64": "The model isn't loaded"})
+        raise HTTPException(status_code=503, detail={"status": "503", "image_base64": "The model isn't loaded", "result":{}})
     else: 
         logger.info(f"The model is loaded")
 
@@ -70,7 +73,7 @@ async def detection(file: UploadFile = File(...)):
         logger.info(f"File is loaded")
     except Exception as e:
         logger.error(f"Invalid file: {str(e)}.")
-        raise HTTPException(status_code=400, detail={"status": "400", "image_base64": "Invalid file."})
+        raise HTTPException(status_code=400, detail={"status": "400", "image_base64": "Invalid file.", "result":{}})
 
 # --- generate les resultat de detection ---
     try:
@@ -89,17 +92,42 @@ async def detection(file: UploadFile = File(...)):
 # transfomation l'image avec les boites dans un text pour envoier
         success, buffer = cv2.imencode(".jpg", img_with_boxes)
         if not success:
-            raise HTTPException(status_code=500, detail={"status": "500", "image_base64": "Image encoding failed."})
+            raise HTTPException(status_code=500, detail={"status": "500", "image_base64": "Image encoding failed.", "result":{}})
 
         img_base64 = base64.b64encode(buffer).decode("utf-8")
 
         logger.info(f"New image with boxes are generated")
 
-    except Exception as e:
-        logger.error(f"Cannot generate new image with boxes: {str(e)}")
-        raise HTTPException(status_code=400, detail={"status": "400", "image_base64": f"Cannot generate new image with boxes: {str(e)}"})
+# transfomation l'information suplimontaire
+        r = results[0]
+        
+        boxes = getattr(r, "boxes", None)
+        orig_shape = getattr(r, "orig_shape", img_np.shape[:2])
+        speed = getattr(r, "speed", {})
 
-    return {"status": "success", "image_base64": img_base64}
+        if boxes is None:
+            inform = {
+                "image_shape": orig_shape,
+                "speed": speed,
+                "detections": {"boxes": [], "scores": [], "class_name": []}
+            }
+        else:
+            cls_list = [r.names[int(c)] for c in boxes.cls.tolist()]
+            inform = {
+                "image_shape": orig_shape,
+                "speed": speed,
+                "detections": {
+                    "boxes": boxes.xyxy.cpu().tolist(),
+                    "scores": boxes.conf.cpu().tolist(),
+                    "class_name": cls_list
+                }
+            }
+
+    except Exception as e:
+        logger.error(f"Cannot generate new image with boxes: {str(e)}", )
+        raise HTTPException(status_code=400, detail={"status": "400", "image_base64": f"Cannot generate new image with boxes: {str(e)}", "result":{}})
+
+    return {"status": "success", "image_base64": img_base64, "result": inform}
 
 if __name__ == "__main__":
     try:
