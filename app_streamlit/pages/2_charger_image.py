@@ -63,7 +63,7 @@ if not base_url:
     logger.error("API_INTERMEDIAIRE_URL n’est pas définie")
     raise RuntimeError("API_INTERMEDIAIRE_URL n’est pas définie")
 
-API_INTERMEDIAIRE_URL = base_url.rstrip("/") + "/api/image/process"
+API_INTERMEDIAIRE_URL = base_url.rstrip("/") + "/api/process_image"
 
 
 # --- SLIDERBAR ---

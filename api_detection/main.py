@@ -2,23 +2,28 @@
 
 # --- import ---
 import io
+from datetime import datetime
 import cv2
 import uvicorn
+import requests
 import base64
 import numpy as np
 from PIL import Image
 from dotenv import load_dotenv
 import os
 import matplotlib.pyplot as plt
-
+from loguru import logger
 load_dotenv()
 
 from fastapi import FastAPI, UploadFile, File,  HTTPException
 from pydantic import BaseModel
 
 from api_detection.model_loader import load_model # <---------------------- import loader
+from api_detection.modules.utils import convert_to_binary
 
 import logging
+
+API_INTERMEDIAIRE_URL = os.getenv("API_DETECTION_URL") + "/api/objects/save"
 
 # --- logging --- 
 logging.basicConfig(
@@ -126,7 +131,48 @@ async def detection(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Cannot generate new image with boxes: {str(e)}", )
         raise HTTPException(status_code=400, detail={"status": "400", "image_base64": f"Cannot generate new image with boxes: {str(e)}", "result":{}})
+    '''
+    try:
+        pil_img = Image.open(io.BytesIO(contents)).convert("RGB")
+        img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
+        results = model.predict(img)
+
+        for r in results:
+            for box in r.boxes:
+                label = model.names[int(box.cls[0])]
+                conf = float(box.conf[0])
+                
+                # Get coordinates and crop
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                crop = img[y1:y2, x1:x2]
+                
+                if crop.size > 0:
+                    # Convert to binary
+                    blob_data = convert_to_binary(crop)
+
+                    obj_values = {
+                    "name":label,
+                    "confidence":conf,
+                    "img_binary":blob_data,
+                    "date": datetime.today().strftime('%Y-%m-%d')
+                    }
+
+                    if blob_data:
+                        response = requests.post(
+                            API_INTERMEDIAIRE_URL,
+                            json=obj_values,
+                            timeout=15
+                        )
+
+                        if response.status_code == 200:
+                            logger.info("Successfully inserted object to database")
+
+
+    except Exception as e:
+        logger.error(f"Cannot generate new image per boxes: {str(e)}", )
+        raise HTTPException(status_code=400, detail={"status": "400", "image_base64": f"Cannot generate new image per boxes: {str(e)}", "result":{}})
+    '''
     return {"status": "success", "image_base64": img_base64, "result": inform}
 
 if __name__ == "__main__":

@@ -142,3 +142,5 @@ pré-entraîné. La description sera affichée à l'utilisateur dans l'interface
 * [liste modeles open cv](https://huggingface.co/opencv)
 * [modèle "image to text"](https://huggingface.co/nlpconnect/vit-gpt2-image-captioning)
 * [modele “image to text2”](https://huggingface.co/Salesforce/blip-image-captioning-large)
+
+[![Build Status](https://github.com/PSEUDO/DEPOT/actions/workflows/build_tests.yml/badge.svg)](https://github.com/PSEUDO/DEPOT/actions)
