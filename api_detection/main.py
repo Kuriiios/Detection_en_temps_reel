@@ -23,7 +23,7 @@ from api_detection.modules.utils import convert_to_binary
 
 import logging
 
-API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL") + "/api/objects/save"
+API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL" or "http://127.0.0.1:8000") + "/api/objects/save"
 
 # --- logging --- 
 logging.basicConfig(
