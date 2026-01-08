@@ -1,6 +1,6 @@
 
 #api_intermerdiaire/main.py
-from api_intermediaire.modules.db_tools import add_new_user, sign_in, sign_out, get_user_infos, get_user_objects
+from api_intermediaire.modules.db_tools import add_new_user, sign_in, sign_out, get_user_infos, get_user_objects, add_bulk_objects
 from api_intermediaire.middleware.auth import get_current_user
 import uvicorn
 from database.data.models import User
@@ -9,6 +9,11 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Depends
 from dotenv import load_dotenv
 import os
 import httpx
+from fastapi import Depends, HTTPException
+from typing import List
+from fastapi.security import HTTPBearer
+
+security = HTTPBearer()
 load_dotenv()
 
 API_DESCRIPTION_URL = os.getenv("API_DESCRIPTION_URL") + "/api/process_image"
@@ -39,6 +44,12 @@ class ConnectionRequest(BaseModel):
 class DeconnectionRequest(BaseModel):
     access_token : str
 
+class ObjectItem(BaseModel):
+    name: str
+    confidence: float
+    img_binary: str 
+class BulkObjectRequest(BaseModel):
+    objects: List[ObjectItem]
 @app.get('/')
 def landing_page():
     return {'Placeholder': 'Welcome'}
@@ -67,7 +78,8 @@ def connection(deconnection : DeconnectionRequest):
     return server_response
 
 @app.post("/api/process_image")
-async def process_image(file: UploadFile = File(...)):
+async def process_image(file: UploadFile = File(...), auth = Depends(security)):
+    print(f"DEBUG: Received token: {auth.credentials}")
     #ON VERIFIE LE TYPE
     if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
         raise HTTPException(status_code=400, detail="Format incorrect")
@@ -76,7 +88,8 @@ async def process_image(file: UploadFile = File(...)):
     content = await file.read()
     if len(content) <= 0:
         raise HTTPException(status_code=400, detail="Image vide")
-    
+
+    headers = {"Authorization": f"Bearer {auth.credentials}"}
     files = {"file" : (file.filename, content, file.content_type)}
 
     async with httpx.AsyncClient(timeout=45.0) as client:
@@ -87,7 +100,7 @@ async def process_image(file: UploadFile = File(...)):
             desc_result = response_desc.json()
 
             #ENVOIE API DETECTION
-            response_det = await client.post(API_DETECTION_URL, files=files)
+            response_det = await client.post(API_DETECTION_URL, files=files, headers=headers)
             response_det.raise_for_status()
             det_result = response_det.json()
 
@@ -103,9 +116,10 @@ async def process_image(file: UploadFile = File(...)):
         "detection_result": det_result
     }
 
-@app.post("/api/objects/save")
-def save_objects():
-    return None
+@app.post("/api/objects/save_bulk")
+def save_bulk(data: BulkObjectRequest, auth = Depends(security)):
+    return add_bulk_objects(data.objects, auth.credentials)
+
 
 if __name__ == "__main__":
     try:
