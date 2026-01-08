@@ -45,17 +45,33 @@ from api_detection.model_loader import load_model
 
 @st.cache_resource
 def load_yolo():
-    return load_model("x")
+    try:
+        logger.info("Loading YOLO model...")
+        model_yolo = load_model("x")
+        logger.info("YOLO loaded successfully.")
+    except Exception as e:
+        logger.error(f"Error loading YOLO: {e}")
+        model_yolo = None
+    
+    return model_yolo
 
 model_yolo = load_yolo()
 
 @st.cache_resource
 def load_blip_model():
-    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-    model = BlipForConditionalGeneration.from_pretrained(
-        "Salesforce/blip-image-captioning-base"
-    ).eval()
-    return processor, model
+    try:
+        logger.info("Loading BLIP model...")
+        processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+        blip_model = BlipForConditionalGeneration.from_pretrained(
+            "Salesforce/blip-image-captioning-base"
+        ).eval()
+        logger.info("BLIP loaded successfully.")
+    except Exception as e:
+        logger.error(f"Error loading BLIP: {e}")
+        processor = None
+        blip_model = None
+        
+    return processor, blip_model
 
 processor, blip_model = load_blip_model()
 
@@ -72,7 +88,7 @@ class YOLOVideoProcessor(VideoProcessorBase):
 
             # YOLO inference
             results = model_yolo(img, conf=self.confidence, stream=False)
-            img = results[0].plot()
+            img_yolo = results[0].plot()
 
             # --- BLIP inference chaque 5 seconde ---
             current_time = time.time()
@@ -84,7 +100,7 @@ class YOLOVideoProcessor(VideoProcessorBase):
             ):
                 self.last_blip_time = current_time
                 # BGR → RGB → PIL
-                image_pil = Image.fromarray(img[:, :, ::-1])
+                image_pil = Image.fromarray(cv2.resize(img, (640, 480))[:, :, ::-1])
 
                 inputs = processor(image_pil, return_tensors="pt")
 
@@ -95,11 +111,11 @@ class YOLOVideoProcessor(VideoProcessorBase):
                     out[0], skip_special_tokens=True
                 )
 
-            return av.VideoFrame.from_ndarray(img, format="bgr24")
+            return av.VideoFrame.from_ndarray(img_yolo, format="bgr24")
         
         except Exception as e:
-            logging.error("VideoProcessor error")
-            st.error("VideoProcessor error")
+            logging.error(f"VideoProcessor error: {e}")
+            st.error(f"VideoProcessor error: {e}")
             return frame
 
 # --- slider ---
@@ -112,20 +128,44 @@ confidence = st.slider(
 )
 
 # 
-col1, col2 = st.columns((3, 1), gap='small', width = "stretch")
+col1, col2 = st.columns((2, 1), gap='small', width = "stretch")
 
+# --- Detection ---
 with col1:
+    logger.info("Starting video processing:")
+    try:
+        ctx = webrtc_streamer(
+            key="yolo-realtime",
+            video_processor_factory=lambda: YOLOVideoProcessor(confidence),
+            media_stream_constraints={"video": True, "audio": False},
+            async_processing=True
+        )
+    except Exception as e:
+        logger.error(f"Error starting WebRTC streamer: {e}")
+        st.error(f"Cannot start video stream: {e}")
 
-    ctx = webrtc_streamer(
-        key="yolo-realtime",
-        video_processor_factory=lambda: YOLOVideoProcessor(confidence),
-        media_stream_constraints={"video": True, "audio": False},
-        async_processing=True
-    )
-
+# --- Description ---
 with col2:
 
+    caption_placeholder = st.empty()
 
-    if ctx.video_processor:
-        st.text("Description:")
-        st.write(ctx.video_processor.last_caption)
+    if ctx and ctx.video_processor:
+        caption = ctx.video_processor.last_caption or "Generating caption..."
+        caption_placeholder.markdown(
+            f"""
+            <div style="display:flex; justify-content:center; margin-top:20px;">
+                <div style="
+                    border:2px solid #FF3B3F;
+                    padding:20px;
+                    border-radius:16px;
+                    max-width:700px;
+                    width:100%;
+                ">
+                    <h4 style="color:#FF3B3F; text-align:center; margin-bottom:16px;">
+                        {caption}
+                    </h4>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
