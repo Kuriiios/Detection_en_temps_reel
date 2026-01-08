@@ -30,10 +30,26 @@ logger = logging.getLogger(__name__)
 
 # --- configs --- 
 st.set_page_config(page_title="Webcam YOLO – Temps réel", layout="wide")
-st_autorefresh(interval=5000, key="refresh")  # 1 сек
+# --- autorefresh ---
+st_autorefresh(interval=8000, key="refresh")  # 3 sec
+
+# --- SLIDERBAR ---
+with st.sidebar:
+    try:
+        st.image("app_streamlit/logo.png", width="stretch")
+    except Exception as e:
+        logger.warning("logo not loaded", exc_info=e)
+        st.warning("logo indisponible")
+
+    st.divider()
+    st.caption(" • YOLOv11 • BLIP • ")
 
 # --- title and logo ---
-
+try:
+    st.image("app_streamlit/logo_hd.jpg", width="stretch")
+except Exception as e:
+        logger.warning("logo_text not loaded", exc_info=e)
+        st.warning("logo_text indisponible")
 st.title("Webcam YOLO – Temps réel")
 
 # --- roots ---
@@ -77,6 +93,7 @@ def load_blip_model():
 
 processor, blip_model = load_blip_model()
 
+# --- CLASS pour detection ---
 class YOLOVideoProcessor(VideoProcessorBase):
     def __init__(self, confidence):
         self.confidence = confidence
@@ -97,7 +114,7 @@ class YOLOVideoProcessor(VideoProcessorBase):
             logging.exception("YOLOVideoProcessor recv error")
             return frame
 
-# --- slider ---
+# --- slider pour chiosir une confiance ---
 confidence = st.slider(
     "Seuil de confiance",
     min_value=0.1,
@@ -109,7 +126,7 @@ confidence = st.slider(
 # 
 col1, col2 = st.columns((2, 1), gap='small', width = "stretch")
 
-# --- Detection ---
+# ---  visualisation resultats de Detection ---
 with col1:
     logger.info("Starting video processing:")
     try:
@@ -123,24 +140,20 @@ with col1:
         logger.error(f"Error starting WebRTC streamer: {e}")
         st.error(f"Cannot start video stream: {e}")
 
-# --- Description ---
+# --- visualisation resultats de Description ---
 with col2:    
+
     if "caption" not in st.session_state:
-        st.session_state.caption = "Waiting description…"
+        st.session_state.caption = "Attenеу de description…"
 
-    if "last_blip_time" not in st.session_state:
-        st.session_state.last_blip_time = 0.0
 
-    caption_box = st.empty()
-    last_blip_time = 0
 
 
     if ctx and ctx.video_processor:
         frame = ctx.video_processor.last_frame
-        now = time.time()
+
 
         if frame is not None:
-            st.session_state.last_blip_time = now
 
             image = Image.fromarray(
                 cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -153,6 +166,9 @@ with col2:
             st.session_state.caption = processor.decode(
                 out[0], skip_special_tokens=True
             )
+        
+        # --- visualisation de boite rouge avec caption ---
+        caption_box = st.empty()
 
         caption_box.markdown(
             f"""
