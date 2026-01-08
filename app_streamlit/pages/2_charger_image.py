@@ -151,9 +151,12 @@ with col2:
     with subcol2:
         check = st.checkbox("Affisher les results de traitement", value=False)
 
-    # checkbox envoi d'une image
     if check and image is not None:
-
+        if "access_token" not in st.session_state:
+            st.error("Veuillez vous connecter pour utiliser cette fonctionnalité.")
+            st.stop()
+        
+        token = st.session_state["access_token"]
         try:
             logger.info(f"Starting image processing: {uploaded_file.name}, type={uploaded_file.type}")
             files = {
@@ -163,10 +166,14 @@ with col2:
                     uploaded_file.type
                 )
             }
-            # --- envoir l'image ---
+            headers = {
+                "Authorization": f"Bearer {token}"
+            }
+    
             response = requests.post(
                 API_INTERMEDIAIRE_URL,
                 files=files,
+                headers=headers,
                 timeout=15
             )
             logger.info("Sending image to API")

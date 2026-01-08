@@ -1,6 +1,8 @@
 import streamlit as st
 import sys
 import os
+from PIL import Image
+import io
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
@@ -28,14 +30,33 @@ def display_user_objects():
         st.error("No user found in session state.")
         return
 
+    # Assuming get_user_id and get_user_objects are imported from your db_tools
     current_user_id = get_user_id(user['email'])
 
     if current_user_id:
         objects = get_user_objects(current_user_id)
         if objects:
-            for obj in objects:
-                with st.expander(f"📦 Object: {obj.label}"):
-                    st.json({"ID": obj.id, "Details": obj.description})
+            # Layout: Displaying objects in a grid (3 columns)
+            cols = st.columns(3)
+            
+            for idx, obj in enumerate(objects):
+                with cols[idx % 3]: # Distribute objects across columns
+                    with st.container(border=True):
+                        # --- THE IMAGE LOADING LOGIC ---
+                        if obj.img_binary:
+                            try:
+                                # Convert binary BLOB to a viewable image
+                                img = Image.open(io.BytesIO(obj.img_binary))
+                                st.image(img, use_container_width=True)
+                            except Exception as e:
+                                st.error("Could not render image.")
+                        else:
+                            st.warning("No image data found.")
+
+                        # --- INFO ---
+                        st.subheader(f"{obj.name.capitalize()}")
+                        st.write(f"**Confidence:** {obj.confidence:.2f}")
+                        st.caption(f"Date: {obj.date}")
         else:
             st.info("No objects linked to this user.")
     else:
