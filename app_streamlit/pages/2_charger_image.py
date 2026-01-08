@@ -10,10 +10,17 @@ import os
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from utils.history_db import init_db, save_history
 
+init_db()
 
+#Util pour lhistorique temporaire
 if "history" not in st.session_state:
     st.session_state.history = []
+
+if "last_processed" not in st.session_state:
+    st.session_state.last_processed = None
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -189,21 +196,6 @@ with col2:
                 logger.exception("Failed to decode JSON from API response")
                 raise RuntimeError("Invalid JSON returned from server")
 
-
-            # ============================
-            # SAUVEGARDE DANS L'HISTORIQUE
-            # ============================
-            try:
-                st.session_state.history.append({
-                    "filename": uploaded_file.name,
-                    "image_base64": data.get("detection_result", {}).get("image_base64"),
-                    "description": data.get("description_result", {}).get("message", "")
-                })
-                logger.info("Image ajoutée à l'historique")
-            except Exception as e:
-                logger.warning("Impossible d'ajouter à l'historique", exc_info=e)
-
-
             # ============================
             # EXTRACTION DES DÉTECTIONS
             # ============================
@@ -250,6 +242,36 @@ with col2:
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             st.image(img_rgb, caption="Résultat de détection", width='stretch')
+
+            # ==================================================================
+            # SAUVEGARDE IMAGE + TEXTE DANS L'HISTORIQUE VERSION NON PERSISTANTE 
+            # ==================================================================
+            if st.session_state.last_processed != uploaded_file.name:
+                st.session_state.last_processed = uploaded_file.name
+
+                _, buffer = cv2.imencode(".jpg", img_rgb)
+                image_base64 = base64.b64encode(buffer).decode("utf-8")
+
+                st.session_state.history.append({
+                    "filename": uploaded_file.name,
+                    "image_base64": image_base64,
+                    "description": data.get("description_result", {}).get("message", "")
+                })
+            # ==================================================================
+            # SAUVEGARDE IMAGE + TEXTE DANS L'HISTORIQUE VERSION BDD 
+            # ==================================================================
+            # if st.session_state.last_processed != uploaded_file.name:
+            #     st.session_state.last_processed = uploaded_file.name
+
+            #     _, buffer = cv2.imencode(".jpg", img_rgb)
+            #     image_bytes = buffer.tobytes()
+
+            #     save_history(
+            #         filename=uploaded_file.name,
+            #         image_bytes=image_bytes,
+            #         description=data.get("description_result", {}).get("message", "")
+            #     )
+
 
         except requests.exceptions.Timeout:
             logger.exception("Timeout occurred while calling API")

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime
+#database/data/models.py
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship, DeclarativeBase
 from database.modules.encryption_db import EncryptedString, BcryptPassword
 from datetime import datetime
@@ -108,3 +109,13 @@ class Token(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     expires_at = Column(DateTime)
+
+
+class History(Base):
+    __tablename__ = 'history'
+
+    id = Column(Integer, primary_key=True)
+    filename = Column(String, nullable=False)        # nom du fichier 
+    image_path = Column(String, nullable=False)     # chemin vers l'image enregistrée
+    description = Column(Text)                       # description générée
+    created_at = Column(DateTime, default=datetime.utcnow)

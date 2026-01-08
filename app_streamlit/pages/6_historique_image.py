@@ -1,5 +1,10 @@
 #app_streamlit/pages/6_historique_image
 import streamlit as st
+from PIL import Image
+
+
+#VERSION NON PERSISTANTE 
+import streamlit as st
 import base64
 import io
 from PIL import Image
