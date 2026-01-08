@@ -1,11 +1,13 @@
 #app_streamlit/pages/4_webcam_temps_reel.py
 
 import av
+import cv2
 import numpy as np
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 from transformers.models.blip.processing_blip import BlipProcessor
 from transformers.models.blip.modeling_blip import BlipForConditionalGeneration
+from streamlit_autorefresh import st_autorefresh
 
 import sys
 from pathlib import Path
@@ -28,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 # --- configs --- 
 st.set_page_config(page_title="Webcam YOLO – Temps réel", layout="wide")
-
+st_autorefresh(interval=5000, key="refresh")  # 1 сек
 
 # --- title and logo ---
 
@@ -78,44 +80,21 @@ processor, blip_model = load_blip_model()
 class YOLOVideoProcessor(VideoProcessorBase):
     def __init__(self, confidence):
         self.confidence = confidence
-        self.last_blip_time = 0
-        self.last_caption = ""
-
+        self.last_frame = None
 
     def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
         try:
             img = frame.to_ndarray(format="bgr24")
 
-            # YOLO inference
-            results = model_yolo(img, conf=self.confidence, stream=False)
-            img_yolo = results[0].plot()
+            self.last_frame = img
 
-            # --- BLIP inference chaque 5 seconde ---
-            current_time = time.time()
+            results = model_yolo(img, conf=self.confidence)
+            img = results[0].plot()
 
-            if (
-                processor is not None
-                and blip_model is not None
-                and current_time - self.last_blip_time >= 5
-            ):
-                self.last_blip_time = current_time
-                # BGR → RGB → PIL
-                image_pil = Image.fromarray(cv2.resize(img, (640, 480))[:, :, ::-1])
+            return av.VideoFrame.from_ndarray(img, format="bgr24")
 
-                inputs = processor(image_pil, return_tensors="pt")
-
-                with torch.no_grad():
-                    out = blip_model.generate(**inputs, max_length=50)
-
-                self.last_caption = processor.decode(
-                    out[0], skip_special_tokens=True
-                )
-
-            return av.VideoFrame.from_ndarray(img_yolo, format="bgr24")
-        
         except Exception as e:
-            logging.error(f"VideoProcessor error: {e}")
-            st.error(f"VideoProcessor error: {e}")
+            logging.exception("YOLOVideoProcessor recv error")
             return frame
 
 # --- slider ---
@@ -145,13 +124,37 @@ with col1:
         st.error(f"Cannot start video stream: {e}")
 
 # --- Description ---
-with col2:
+with col2:    
+    if "caption" not in st.session_state:
+        st.session_state.caption = "Waiting description…"
 
-    caption_placeholder = st.empty()
+    if "last_blip_time" not in st.session_state:
+        st.session_state.last_blip_time = 0.0
+
+    caption_box = st.empty()
+    last_blip_time = 0
+
 
     if ctx and ctx.video_processor:
-        caption = ctx.video_processor.last_caption or "Generating caption..."
-        caption_placeholder.markdown(
+        frame = ctx.video_processor.last_frame
+        now = time.time()
+
+        if frame is not None:
+            st.session_state.last_blip_time = now
+
+            image = Image.fromarray(
+                cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            )
+
+            inputs = processor(image, return_tensors="pt")
+            with torch.no_grad():
+                out = blip_model.generate(**inputs, max_length=40)
+
+            st.session_state.caption = processor.decode(
+                out[0], skip_special_tokens=True
+            )
+
+        caption_box.markdown(
             f"""
             <div style="display:flex; justify-content:center; margin-top:20px;">
                 <div style="
@@ -161,8 +164,8 @@ with col2:
                     max-width:700px;
                     width:100%;
                 ">
-                    <h4 style="color:#FF3B3F; text-align:center; margin-bottom:16px;">
-                        {caption}
+                    <h4 style="color:#FF3B3F; text-align:center;">
+                        {st.session_state.caption}
                     </h4>
                 </div>
             </div>
