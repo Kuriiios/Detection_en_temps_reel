@@ -95,8 +95,8 @@ processor, blip_model = load_blip_model()
 
 # --- CLASS pour detection ---
 class YOLOVideoProcessor(VideoProcessorBase):
-    def __init__(self, confidence):
-        self.confidence = confidence
+    def __init__(self):
+        self.confidence = 0.5
         self.last_frame = None
 
     def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
@@ -104,6 +104,8 @@ class YOLOVideoProcessor(VideoProcessorBase):
             img = frame.to_ndarray(format="bgr24")
 
             self.last_frame = img
+
+
 
             results = model_yolo(img, conf=self.confidence)
             img = results[0].plot()
@@ -117,11 +119,9 @@ class YOLOVideoProcessor(VideoProcessorBase):
 # --- slider pour chiosir une confiance ---
 confidence = st.slider(
     "Seuil de confiance",
-    min_value=0.1,
-    max_value=1.0,
-    value=0.5,
-    step=0.05
+    0.1, 1.0, 0.5, 0.05
 )
+
 
 # 
 col1, col2 = st.columns((2, 1), gap='small', width = "stretch")
@@ -129,13 +129,18 @@ col1, col2 = st.columns((2, 1), gap='small', width = "stretch")
 # ---  visualisation resultats de Detection ---
 with col1:
     logger.info("Starting video processing:")
+
     try:
         ctx = webrtc_streamer(
             key="yolo-realtime",
-            video_processor_factory=lambda: YOLOVideoProcessor(confidence),
+            video_processor_factory=YOLOVideoProcessor,
             media_stream_constraints={"video": True, "audio": False},
-            async_processing=True
+            async_processing=True,
         )
+
+        if ctx.video_processor:
+            ctx.video_processor.confidence = confidence
+
     except Exception as e:
         logger.error(f"Error starting WebRTC streamer: {e}")
         st.error(f"Cannot start video stream: {e}")
@@ -144,7 +149,7 @@ with col1:
 with col2:    
 
     if "caption" not in st.session_state:
-        st.session_state.caption = "Attenеу de description…"
+        st.session_state.caption = "Attente de description…"
 
 
 
