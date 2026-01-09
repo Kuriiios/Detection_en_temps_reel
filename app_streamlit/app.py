@@ -6,8 +6,7 @@ pages = {
         st.Page("pages/0_accueil.py", title="Description"),
     ],
     "Analyse": [
-        st.Page("pages/2_charger_image.py", title="Télécharger une image"),
-        st.Page("pages/3_mode_webcam.py", title="Photo"),
+        st.Page("pages/2_photo.py", title="Photo"),
         st.Page("pages/4_webcam_temps_reel.py", title="Video"),
     ],
     "Utilisateur": [

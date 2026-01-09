@@ -100,38 +100,46 @@ with col1:
         st.error("Variable d'environnement API_INTERMEDIAIRE_URL non définie")
         st.stop()
 
-    # UPLOAD IMAGE
-    uploaded_file = st.file_uploader(
-        "Charger une image",
-        type=["jpg", "jpeg", "png"]
-    )
+    mode = st.radio("Choisir votre mode", ("Uploader une image", "Webcam"))
+    # ========================================
+    # MODE UPLOAD
+    # ========================================
+    if mode == "Uploader une image":
+        picture = st.file_uploader("Charger une image", type=["jpg", "jpeg", "png"])
 
-    if uploaded_file is not None:
-        try:
-            #Vérification du type
-            # if uploaded_file.type not in ["image/jpeg", "image/png", "image/jpg"]:
-            #     st.error("Format de fichier non supporté. Veuillez charger un JPG ou PNG.")
-            
-            # Vérification taille > 0
-            if uploaded_file.size <= 0:
-                logger.error("Fichier vide")
-                st.error("Fichier vide")
-            else:
-                # Lecture image
-                image_bytes = uploaded_file.read()
+        if picture:
+            try:
+                if picture.size <= 0:
+                    st.error("Fichier vide")
+                else:
+                    image_bytes = picture.read()
+                    image = Image.open(io.BytesIO(image_bytes))
+                    img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+                    st.image(image, caption=picture.name)
+                    
+            except Exception as e:
+                st.error(f"Impossible de lire le fichier : {e}")
+
+    # ========================================
+    # MODE WEBCAM
+    # ========================================
+
+    else:
+        enable = st.checkbox("Activer la webcam")
+        picture = st.camera_input("Prendre une photo", disabled=not enable)
+
+        if picture:
+            try:
+                image_bytes = picture.getvalue()
                 image = Image.open(io.BytesIO(image_bytes))
                 img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-                # Affichage image
-                st.image(image, caption=uploaded_file.name)
+                st.image(image, caption="Image capturée")
 
-        except Exception:
-            logger.error("Impossible de lire le fichier")
-            st.error("Impossible de lire le fichier")
-
-    else:
-        st.warning("Sélectionner une image")
-
+            except Exception as e:
+                st.error(f"Impossible de lire l'image de la webcam : {e}")
+            
 
 with col2:
     # --- paramètres de configuration de la détection ---
@@ -149,18 +157,18 @@ with col2:
         show_scores = st.checkbox("Afficher les scores", value=True)
 
     with subcol2:
-        check = st.checkbox("Affisher les results de traitement", value=False)
+        check = st.checkbox("Afficher les results de traitement", value=True)
 
     # checkbox envoi d'une image
     if check and image is not None:
 
         try:
-            logger.info(f"Starting image processing: {uploaded_file.name}, type={uploaded_file.type}")
+            logger.info(f"Starting image processing: {picture.name}, type={picture.type}")
             files = {
                 "file": (
-                    uploaded_file.name,
+                    picture.name,
                     image_bytes,
-                    uploaded_file.type
+                    picture.type
                 )
             }
             # --- envoir l'image ---
@@ -239,9 +247,9 @@ with col2:
             st.error(str(e))
 
 # --- RÉSULTAT DE LA GÉNÉRATION DE TEXTE ---
-if uploaded_file is not None and data:
+if picture is not None and data:
     try:
-        logger.info(f"Processing description for file: {uploaded_file.name}")
+        logger.info(f"Processing description for file: {picture.name}")
 
         description_result = data.get("description_result", {})
         description = description_result.get("message", "")
@@ -282,7 +290,7 @@ if uploaded_file is not None and data:
     df["boxes"] = df["boxes"].apply(lambda coords: [round(x) for x in coords])
     st.divider()
 
-    if st.checkbox("Afficher des informations supplémentaires de detection", value=True):
+    if st.checkbox("Afficher des informations supplémentaires de detection", value=False):
         try:
             # Affichage le dataFrame
             st.text("Objets detectés:")
