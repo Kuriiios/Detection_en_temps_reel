@@ -2,7 +2,6 @@ import streamlit as st
 from module.auto_login import try_auto_login
 from module.visuals import display_user_objects
 import os
-import pandas as pd
 from dotenv import load_dotenv
 
 load_dotenv()

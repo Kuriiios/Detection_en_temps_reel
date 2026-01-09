@@ -2,7 +2,6 @@
 
 # --- import ---
 import io
-from datetime import datetime
 import cv2
 import uvicorn
 import requests
@@ -11,7 +10,6 @@ import numpy as np
 from PIL import Image
 from dotenv import load_dotenv
 import os
-import matplotlib.pyplot as plt
 from loguru import logger
 load_dotenv()
 

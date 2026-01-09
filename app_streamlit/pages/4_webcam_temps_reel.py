@@ -11,7 +11,6 @@ from streamlit_autorefresh import st_autorefresh
 
 import sys
 from pathlib import Path
-import time
 import torch
 from PIL import Image
 import logging
