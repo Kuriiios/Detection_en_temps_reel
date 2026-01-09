@@ -1,30 +1,33 @@
-# DETECTION_en_temps_reel/api_description/tests/test_api_description.py
+# DETECTION_en_temps_reel/API_description/tests/test_api_description.py
 import io
 import cv2
-import pytest
 import numpy as np
+from api_detection.main import app, security
 
 import base64
 from fastapi.testclient import TestClient
 from api_detection.main import app
-from api_detection.main import model
+
+async def override_security():
+    # This simulates a successful login and returns a dummy credential object
+    class MockAuth:
+        credentials = "dummy_token_123"
+    return MockAuth()
+
+# 2. Apply the override to the app
+app.dependency_overrides[security] = override_security
 
 # --- client ---
 client = TestClient(app)
 
 # --- fake model ---
+
 class DummyYOLO:
     def __call__(self, img):
         class Result:
             def plot(self):
                 return np.zeros((100, 100, 3), dtype=np.uint8)
         return [Result()] 
-
-@pytest.fixture(autouse=True)
-def mock_model(monkeypatch):
-
-    monkeypatch.setattr("api_detection.main.model", DummyYOLO())
-    yield
 
 # --- test api access ---
 def test_docs_available():
@@ -35,13 +38,13 @@ def test_detect_no_file():
     response = client.post("/api/process_image")
     assert response.status_code == 422  
 
-
 # --- invalid file ---
 def test_detect_invalid_file():
     response = client.post(
         "/api/process_image",
         files={"file": ("test.txt", b"not an image", "text/plain")}
     )
+
     assert response.status_code == 422
 
 # --- empty file ---
@@ -55,23 +58,16 @@ def test_detect_empty_file():
 
 # --- test success ---
 def test_detect_image_success():
-    # --- fake image ---
-    img_np = np.random.randint(0, 256, (50, 50, 3), dtype=np.uint8)
-
-
-    success, buffer = cv2.imencode(".jpg", img_np)
-    assert success
-    # --- creation une fiche pour envoier
-    img_bytes = io.BytesIO(buffer.tobytes())
-
-    response = client.post(
-        "/api/process_image",
-        files={"file": ("fake.jpg", img_bytes, "image/jpeg")}
-    )
+    with open("tests/assets/test.jpg", "rb") as f:
+        response = client.post(
+            "/api/process_image",
+            files={"file": ("test.jpg", f, "image/jpeg")}
+        )
 
     assert response.status_code == 200
 
     data = response.json()
+
     assert "status" in data
     assert data["status"] == "success"
 

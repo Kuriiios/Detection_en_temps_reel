@@ -43,9 +43,9 @@ RED = "#E10600"
 WHITE = "#FFFFFF"
 
 plt.rcParams.update({
-    "figure.facecolor": RED,
-    "axes.facecolor": BLACK,
-    "savefig.facecolor": BLACK,
+    "figure.facecolor": "none",   # прозрачный фон всей фигуры
+    "axes.facecolor": "none",     # прозрачный фон области графика
+    "savefig.facecolor": "none",  # прозрачный фон при сохранении
     "axes.edgecolor": WHITE,
     "axes.labelcolor": RED,
     "xtick.color": RED,
@@ -159,9 +159,12 @@ with col2:
     with subcol2:
         check = st.checkbox("Afficher les results de traitement", value=True)
 
-    # checkbox envoi d'une image
     if check and image is not None:
-
+        if "access_token" not in st.session_state:
+            st.error("Veuillez vous connecter pour utiliser cette fonctionnalité.")
+            st.stop()
+        
+        token = st.session_state["access_token"]
         try:
             logger.info(f"Starting image processing: {picture.name}, type={picture.type}")
             files = {
@@ -171,10 +174,14 @@ with col2:
                     picture.type
                 )
             }
-            # --- envoir l'image ---
+            headers = {
+                "Authorization": f"Bearer {token}"
+            }
+    
             response = requests.post(
                 API_INTERMEDIAIRE_URL,
                 files=files,
+                headers=headers,
                 timeout=15
             )
             logger.info("Sending image to API")

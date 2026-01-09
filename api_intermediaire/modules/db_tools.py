@@ -2,11 +2,12 @@ from sqlalchemy.orm import Session, sessionmaker
 from  database.data.models import User, City, Token, Object, ObjectPerUser
 from database.data.db_init import ENGINE
 import datetime
+import base64
 import secrets
 from loguru import logger
 import os
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 load_dotenv()
 
@@ -27,20 +28,26 @@ def add_new_user(user):
     with get_db_session() as session:
         created_at = datetime.now()
         try:
-            city_from_db = session.query(City).filter_by(name = user.city).first()
-            logger.success('Successfully retrieved city from db')
-            if city_from_db is None:
-                new_city = City(name=user.city)
-                session.add(new_city)
-                session.commit()
-                city_from_db = session.query(City).filter_by(name = user.city).first()
-                logger.success('Successfully inserted and retrieved city from db')
+            city_obj = session.query(City).filter_by(name=user.city).first()
+
+            if city_obj is None:
+                city_obj = City(name=user.city)
+                session.add(city_obj)
+                session.flush() 
+                logger.success(f"Created new city object for {user.city}")
         except Exception as e:
             session.rollback()
             logger.error(f'Failed to retrieve and insert city into db with error: {e}')
-            city_from_db = None
+            city_obj = None
         try:
-            new_user = User(firstname = user.firstname, lastname = user.lastname, username = user.username, email = user.email, password = user.password, city_id = city_from_db.id, created_at = created_at)
+            new_user = User(
+                firstname = user.firstname, 
+                lastname = user.lastname, 
+                username = user.username, 
+                email = user.email, 
+                password = user.password, 
+                city_id = city_obj.id,
+                created_at = created_at)
             session.add(new_user)
             session.commit()
             logger.success('Successfully inserted user into db')
@@ -123,3 +130,63 @@ def get_user_objects(current_user_id):
         except Exception as e:
             logger.warning(f'User not found {e}')
             return []
+            
+def get_user_id_by_token(token_string: str):
+    """
+    Retrieves the user_id associated with a valid, non-expired token.
+    Returns the user_id if valid, None if the token is invalid or expired.
+    """
+    with get_db_session() as session:
+        try:
+            token_record = session.query(Token).filter_by(token=token_string).first()
+
+            if not token_record:
+                logger.warning(f"Token validation failed: Token not found.")
+                return None
+
+            if token_record.expires_at and datetime.now() > token_record.expires_at:
+                logger.warning(f"Token validation failed: Token expired at {token_record.expires_at}")
+                return None
+
+            logger.success(f"Token validated for user_id: {token_record.user_id}")
+            return token_record.user_id
+
+        except Exception as e:
+            logger.error(f"Error validating token: {e}")
+            return None
+
+def get_object_id(object):
+    with get_db_session() as session:
+        try:
+            object_from_db = session.query(Object).filter_by(name = object.name, confidence = object.confidence, img_binary = object.img_binary,).first()
+            return object_from_db.id
+        except Exception as e:
+            logger.warning(f'User not found {e}')
+
+def add_bulk_objects(objects_list, token_string):
+    with get_db_session() as session:
+        try:
+            user_id = get_user_id_by_token(token_string)
+            current_date = date.today()            
+            
+            for obj_data in objects_list:
+                binary_data = base64.b64decode(obj_data.img_binary)
+                # Use obj_data.name instead of obj_data['name']
+                new_obj = Object(
+                    name=obj_data.name, 
+                    confidence=obj_data.confidence, 
+                    img_binary=binary_data, 
+                    date=current_date
+                )
+                session.add(new_obj)
+                session.flush()
+
+                link = ObjectPerUser(user_id=user_id, object_id=new_obj.id)
+                session.add(link)
+         
+            session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Bulk save error: {e}")
+            return False

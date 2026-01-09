@@ -20,10 +20,12 @@ from pydantic import BaseModel
 
 from api_detection.model_loader import load_model # <---------------------- import loader
 from api_detection.modules.utils import convert_to_binary
-
+from fastapi.security import HTTPBearer
+from fastapi import Depends, HTTPException
+security = HTTPBearer()
 import logging
 
-API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL" or "http://127.0.0.1:8000") + "/api/objects/save"
+API_INTERMEDIAIRE_URL = os.getenv("API_INTERMEDIAIRE_URL" or "http://127.0.0.1:8000")
 
 # --- logging --- 
 logging.basicConfig(
@@ -55,7 +57,7 @@ except:
     model = None
 
 @app.post("/api/process_image", response_model= ImageResponse)
-async def detection(file: UploadFile = File(...)):
+async def detection(file: UploadFile = File(...), auth = Depends(security)):
 
     global model 
 
@@ -131,48 +133,51 @@ async def detection(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Cannot generate new image with boxes: {str(e)}", )
         raise HTTPException(status_code=400, detail={"status": "400", "image_base64": f"Cannot generate new image with boxes: {str(e)}", "result":{}})
-    '''
+    
+    detected_objects_to_save = []
+
     try:
-        pil_img = Image.open(io.BytesIO(contents)).convert("RGB")
-        img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
-
-        results = model.predict(img)
-
         for r in results:
             for box in r.boxes:
                 label = model.names[int(box.cls[0])]
                 conf = float(box.conf[0])
-                
-                # Get coordinates and crop
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
-                crop = img[y1:y2, x1:x2]
+                
+                # FIX: Use img_np (the numpy array) instead of img (the PIL object)
+                crop = img_np[y1:y2, x1:x2] 
                 
                 if crop.size > 0:
-                    # Convert to binary
-                    blob_data = convert_to_binary(crop)
+                    crop_rgb = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
+                    blob_data = convert_to_binary(crop_rgb)
+                    base64_data = base64.b64encode(blob_data).decode("utf-8")
+                    detected_objects_to_save.append({
+                        "name": label,
+                        "confidence": conf,
+                        "img_binary": base64_data
+                    })
 
-                    obj_values = {
-                    "name":label,
-                    "confidence":conf,
-                    "img_binary":blob_data,
-                    "date": datetime.today().strftime('%Y-%m-%d')
-                    }
-
-                    if blob_data:
-                        response = requests.post(
-                            API_INTERMEDIAIRE_URL,
-                            json=obj_values,
-                            timeout=15
-                        )
-
-                        if response.status_code == 200:
-                            logger.info("Successfully inserted object to database")
-
+        # --- SEND EVERYTHING IN ONE CALL ---
+        if detected_objects_to_save:
+            token = auth.credentials
+            headers = {"Authorization": f"Bearer {token}"}
+            payload = {"objects": detected_objects_to_save}
+            
+            response = requests.post(
+                f"{API_INTERMEDIAIRE_URL}/api/objects/save_bulk",
+                json=payload,
+                headers=headers,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                logger.info(f"Saved {len(detected_objects_to_save)} objects.")
+            else:
+                logger.error(f"Failed to save: {response.text}")
 
     except Exception as e:
-        logger.error(f"Cannot generate new image per boxes: {str(e)}", )
+        logger.error(f"Error: {e}")
         raise HTTPException(status_code=400, detail={"status": "400", "image_base64": f"Cannot generate new image per boxes: {str(e)}", "result":{}})
-    '''
+    
     return {"status": "success", "image_base64": img_base64, "result": inform}
 
 if __name__ == "__main__":
