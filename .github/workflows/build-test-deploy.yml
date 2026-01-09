@@ -2,34 +2,35 @@ name: Build, Test, and Deploy
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: ["main", "dev"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     env:
-        ENCRYPTION_KEY: "I6XWGKxqoi1qR-U6ugTjav7Jf6T0sMr5o_rEPKAW9Lo="
-        HASH_STATIC_SALT: "Detection-en-temps-reel-avec-webcam-et-image-to-text"
-        PYTHONPATH: .
+      ENCRYPTION_KEY: "I6XWGKxqoi1qR-U6ugTjav7Jf6T0sMr5o_rEPKAW9Lo="
+      HASH_STATIC_SALT: "Detection-en-temps-reel-avec-webcam-et-image-to-text"
+      PYTHONPATH: .
+      API_INTERMEDIAIRE_URL: http://127.0.0.1:8000
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.11.14
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11.14"
+      - name: Set up Python 3.11.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.14"
 
-    - name: Upgrade pip
-      run: python -m pip install --upgrade pip
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
-    - name: Install Python deps
-      run: pip install -r requirements.txt
+      - name: Install Python deps
+        run: pip install -r requirements.txt
 
-    - name: Run tests
-      run: |
-        pytest
+      - name: Run tests
+        run: |
+          pytest

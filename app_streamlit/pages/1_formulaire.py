@@ -6,10 +6,45 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-BASE_URL = f"http://{os.getenv('API_BASE_URL', '127.0.0.1')}:{os.getenv('API_INTERMEDIAIRE_PORT', '8080')}"
+BASE_URL = f"{os.getenv('API_INTERMEDIAIRE_URL')}"
 
+import logging
 
-st.title("Formulaire")
+# --- logging --- 
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler("app.log"),  # <-----------------------to file
+        logging.StreamHandler()        
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+# --- page config --- 
+st.set_page_config(
+    page_title="NeuroVision",
+    layout="wide"
+)
+
+# --- SLIDERBAR ---
+with st.sidebar:
+    try:
+        st.image("app_streamlit/logo.png", width="stretch")
+    except Exception as e:
+        logger.warning("logo not loaded", exc_info=e)
+        st.warning("logo indisponible")
+
+    st.divider()
+    st.caption(" • YOLOv11 • BLIP • ")
+
+# --- TITLE ---
+try:
+    st.image("app_streamlit/logo_hd.jpg", width="stretch")
+except Exception as e:
+        logger.warning("logo_text not loaded", exc_info=e)
+        st.warning("logo_text indisponible")
 
 with st.form(key="form_utilisateur"):
     firstname = st.text_input("Nom")
@@ -27,12 +62,15 @@ with st.form(key="form_utilisateur"):
         if not all([
             firstname.strip(), lastname.strip(), pseudo.strip(),city.strip(), email.strip(), password.strip(), confirm_password.strip()
         ]):                
+            logger.error("Tous les champs sont obligatoire")
             st.error("Tous les champs sont obligatoire")
 
         elif not email_valide(email):
+            logger.error("Format de l'adresse email invalide")
             st.error("Format de l'adresse email invalide")
 
         elif password != confirm_password:
+            logger.error("Les mots de passe ne correspondent pas")
             st.error("Les mots de passe ne correspondent pas") 
         
         user_data = {
@@ -48,11 +86,15 @@ with st.form(key="form_utilisateur"):
             if response.status_code == 200:
                 result = response.json()
                 if result.get("response"):
+                    logger.info("Compte créé avec succès !")
                     st.success("Compte créé avec succès !")
                 else:
+                    logger.error("Erreur lors de la création du compte.")
                     st.error("Erreur lors de la création du compte.")
             else:
+                logger.error(f"Erreur API : {response.status_code}")
                 st.error(f"Erreur API : {response.status_code}")
         except Exception as e:
+            logger.error(f"Impossible de contacter l'API : {e}")
             st.error(f"Impossible de contacter l'API : {e}")
 
