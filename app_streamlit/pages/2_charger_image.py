@@ -43,9 +43,9 @@ RED = "#E10600"
 WHITE = "#FFFFFF"
 
 plt.rcParams.update({
-    "figure.facecolor": RED,
-    "axes.facecolor": BLACK,
-    "savefig.facecolor": BLACK,
+    "figure.facecolor": "none",   # прозрачный фон всей фигуры
+    "axes.facecolor": "none",     # прозрачный фон области графика
+    "savefig.facecolor": "none",  # прозрачный фон при сохранении
     "axes.edgecolor": WHITE,
     "axes.labelcolor": RED,
     "xtick.color": RED,
